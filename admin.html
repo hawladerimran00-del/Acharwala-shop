@@ -1,0 +1,2944 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>আচার ওয়ালা — Admin Panel</title>
+<meta name="description" content="আচার ওয়ালা অর্ডার ও পণ্য ম্যানেজমেন্ট প্যানেল">
+<meta name="theme-color" content="#1A4A2E">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥭</text></svg>">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS — Achar Wala Admin
+   ============================================================ */
+:root{
+  --primary:#1A4A2E;
+  --primary-light:#2D6B45;
+  --primary-dark:#0F3520;
+  --secondary:#C17F24;
+  --secondary-light:#D4A04A;
+  --bg:#F3F4F6;
+  --bg-white:#FFFFFF;
+  --bg-soft:#F9FAFB;
+  --text-dark:#1A1A1A;
+  --text-gray:#6B7280;
+  --text-light:#FFFFFF;
+  --border:#E5E7EB;
+  --status-red:#DC2626;
+  --status-yellow:#F59E0B;
+  --status-green:#16A34A;
+  --status-blue:#2563EB;
+  --status-purple:#7C3AED;
+  --shadow:0 1px 3px rgba(0,0,0,.1);
+  --shadow-md:0 4px 14px rgba(0,0,0,.1);
+  --shadow-lg:0 12px 34px rgba(0,0,0,.18);
+  --radius:12px;
+  --radius-sm:8px;
+  --font:'Hind Siliguri','Inter',sans-serif;
+  --nav-h:56px;
+  --tab-h:60px;
+}
+
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text-dark);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+.hidden{display:none !important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+::-webkit-scrollbar{height:6px;width:6px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:6px}
+
+.container{max-width:1280px;margin:0 auto;padding:0 16px;width:100%}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:var(--radius-sm);font-weight:600;font-size:15px;
+  transition:background .2s,transform .15s,opacity .2s;white-space:nowrap;
+}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--primary-light)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-dark)}
+.btn-outline:hover:not(:disabled){background:var(--bg-soft)}
+.btn-danger{background:var(--status-red);color:#fff}
+.btn-danger:hover:not(:disabled){background:#B91C1C}
+.btn-gold{background:var(--secondary);color:#fff}
+.btn-gold:hover:not(:disabled){background:var(--secondary-light)}
+.btn-green{background:#22A65B;color:#fff}
+.btn-green:hover:not(:disabled){background:#1B8B4C}
+.btn-sm{padding:7px 12px;font-size:13.5px;border-radius:7px}
+.btn-block{width:100%}
+.btn.loading{position:relative;color:transparent !important}
+.btn.loading::after{
+  content:'';position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+.btn-outline.loading::after{border-color:rgba(0,0,0,.2);border-top-color:var(--primary)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#loginScreen{
+  position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:linear-gradient(160deg,#1A4A2E 0%,#0F3520 100%);
+  overflow-y:auto;
+}
+.login-card{
+  background:var(--bg-white);border-radius:16px;box-shadow:var(--shadow-lg);
+  width:100%;max-width:390px;padding:32px 24px;text-align:center;
+}
+.login-logo{font-size:44px;line-height:1}
+.login-card h1{font-size:26px;font-weight:700;color:var(--primary);margin-top:6px}
+.login-card .sub{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--secondary);margin-bottom:26px;
+}
+.login-card form{text-align:right}
+.login-card .field{margin-bottom:14px;text-align:right}
+.login-card .btn{margin-top:8px}
+.login-err{
+  display:none;margin-top:14px;padding:10px 12px;border-radius:var(--radius-sm);
+  background:#FEF2F2;border:1px solid #FECACA;color:var(--status-red);
+  font-size:14px;font-weight:500;text-align:center;
+}
+.login-err.show{display:block}
+.login-foot{margin-top:20px;font-size:12.5px;color:var(--text-gray)}
+
+/* ============================================================
+   FORM FIELDS
+   ============================================================ */
+.field label,.field .lbl{
+  display:block;font-size:13.5px;font-weight:600;color:var(--text-dark);margin-bottom:5px;
+}
+.field .req{color:var(--status-red)}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--bg-white);font-size:15px;transition:border-color .2s,box-shadow .2s;
+}
+.field textarea{resize:vertical;min-height:74px;line-height:1.55}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,74,46,.1);
+}
+.field input.invalid,.field select.invalid,.field textarea.invalid{border-color:var(--status-red)}
+.field .hint{font-size:12.5px;color:var(--text-gray);margin-top:4px}
+.field .err-msg{display:none;font-size:12.5px;color:var(--status-red);margin-top:4px;font-weight:500}
+.field .err-msg.show{display:block}
+.field-row{display:grid;gap:14px}
+@media(min-width:600px){.field-row{grid-template-columns:1fr 1fr}}
+
+/* ============================================================
+   TOP NAVBAR
+   ============================================================ */
+#topNav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:600;
+  background:var(--primary);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);
+  padding-top:env(safe-area-inset-top);
+}
+#topNav .inner{
+  max-width:1280px;margin:0 auto;height:var(--nav-h);padding:0 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.brand{display:flex;align-items:center;gap:7px;font-weight:700;font-size:17px;flex-shrink:0}
+.brand .mango{font-size:21px}
+.brand .adm{
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.2px;
+  background:var(--secondary);padding:2px 6px;border-radius:4px;text-transform:uppercase;
+}
+.nav-links{display:none;margin:0 auto;gap:4px}
+.nav-links button{
+  color:rgba(255,255,255,.82);padding:8px 14px;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:600;transition:background .2s,color .2s;
+}
+.nav-links button:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-links button.active{background:var(--primary-dark);color:#fff}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.bell{
+  position:relative;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  font-size:18px;transition:background .2s;
+}
+.bell:hover{background:rgba(255,255,255,.12)}
+.bell .cnt{
+  position:absolute;top:1px;right:0;min-width:18px;height:18px;padding:0 4px;
+  background:var(--status-red);color:#fff;border-radius:9px;font-size:11px;font-weight:700;
+  display:grid;place-items:center;border:2px solid var(--primary);line-height:1;
+}
+.bell .cnt.zero{display:none}
+.logout-btn{
+  display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--radius-sm);
+  background:rgba(255,255,255,.14);color:#fff;font-size:13.5px;font-weight:600;
+}
+.logout-btn:hover{background:rgba(255,255,255,.24)}
+.logout-btn .txt{display:none}
+@media(min-width:900px){
+  .nav-links{display:flex}
+  .logout-btn .txt{display:inline}
+}
+
+/* ============================================================
+   MAIN / SECTIONS
+   ============================================================ */
+main{
+  padding-top:calc(var(--nav-h) + env(safe-area-inset-top) + 16px);
+  padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 24px);
+  min-height:100vh;
+}
+@media(min-width:900px){main{padding-bottom:40px}}
+.page{display:none;animation:fade .25s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:16px;flex-wrap:wrap;
+}
+.page-title{font-size:21px;font-weight:700;display:flex;align-items:center;gap:7px}
+.page-sub{font-size:13px;color:var(--text-gray);font-weight:500}
+
+/* ============================================================
+   BOTTOM TAB BAR (mobile / APK)
+   ============================================================ */
+#bottomTabs{
+  position:fixed;bottom:0;left:0;right:0;z-index:600;height:var(--tab-h);
+  background:var(--bg-white);border-top:1px solid var(--border);
+  box-shadow:0 -2px 12px rgba(0,0,0,.07);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+#bottomTabs button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  color:var(--text-gray);font-size:11.5px;font-weight:600;position:relative;transition:color .2s;
+}
+#bottomTabs button .ic{font-size:19px;line-height:1.15}
+#bottomTabs button.active{color:var(--primary)}
+#bottomTabs button.active::before{
+  content:'';position:absolute;top:0;left:22%;right:22%;height:3px;
+  background:var(--primary);border-radius:0 0 3px 3px;
+}
+#bottomTabs .tab-badge{
+  position:absolute;top:5px;right:calc(50% - 22px);min-width:17px;height:17px;padding:0 4px;
+  background:var(--status-red);color:#fff;border-radius:9px;font-size:10.5px;font-weight:700;
+  display:grid;place-items:center;line-height:1;
+}
+.tab-badge.zero{display:none}
+@media(min-width:900px){#bottomTabs{display:none}}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{background:var(--bg-white);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card + .card{margin-top:16px}
+.card-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:12px}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:768px){.stats{grid-template-columns:repeat(3,1fr);gap:16px}}
+.stat{
+  background:var(--bg-white);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:14px 14px 14px 13px;border-left:4px solid var(--c,var(--primary));
+  display:flex;flex-direction:column;gap:2px;transition:transform .18s,box-shadow .18s;
+}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat .ic{font-size:19px;line-height:1}
+.stat .val{font-size:26px;font-weight:700;color:var(--c);line-height:1.2;word-break:break-all}
+.stat .lbl{font-size:13px;color:var(--text-gray);font-weight:600}
+@media(min-width:768px){.stat{padding:18px}.stat .val{font-size:30px}}
+
+/* Storage widget */
+.bar-track{height:14px;border-radius:8px;background:#E5E7EB;overflow:hidden;margin:10px 0 8px}
+.bar-fill{height:100%;border-radius:8px;background:var(--status-green);width:0;transition:width .6s ease,background .3s}
+.bar-fill.warn{background:var(--status-yellow)}
+.bar-fill.crit{background:var(--status-red)}
+.storage-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--text-gray)}
+.alert{
+  margin-top:12px;padding:11px 13px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:600;
+  display:flex;align-items:flex-start;gap:8px;line-height:1.5;
+}
+.alert-warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.alert-crit{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.alert-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF}
+.alert button{text-decoration:underline;font-weight:700;color:inherit}
+
+/* Recent orders mini table */
+.mini-table{width:100%;border-collapse:collapse;font-size:14px}
+.mini-table th{
+  text-align:right;font-size:12.5px;font-weight:700;color:var(--text-gray);
+  padding:8px 8px;border-bottom:1.5px solid var(--border);white-space:nowrap;
+}
+.mini-table td{padding:11px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.mini-table tbody tr{cursor:pointer;transition:background .15s}
+.mini-table tbody tr:hover{background:var(--bg-soft)}
+.mini-table tbody tr:last-child td{border-bottom:none}
+.mini-table .num{font-weight:700;color:var(--primary);white-space:nowrap}
+.mini-table .amt{font-weight:700;color:var(--secondary);white-space:nowrap}
+.mini-table .tm{color:var(--text-gray);font-size:12.5px;white-space:nowrap}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ============================================================
+   BADGES / FILTER TABS
+   ============================================================ */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:50px;
+  font-size:12.5px;font-weight:700;white-space:nowrap;line-height:1.5;
+}
+.badge-pending{background:var(--status-red);color:#fff}
+.badge-confirmed{background:var(--status-yellow);color:#3A2606}
+.badge-delivered{background:var(--status-green);color:#fff}
+
+.filter-tabs{
+  display:flex;gap:4px;overflow-x:auto;background:var(--bg-white);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:5px;margin-bottom:14px;scrollbar-width:none;
+}
+.filter-tabs::-webkit-scrollbar{display:none}
+.filter-tabs button{
+  flex:1 0 auto;padding:9px 14px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;
+  color:var(--text-gray);white-space:nowrap;position:relative;transition:color .2s,background .2s;
+}
+.filter-tabs button.active{color:var(--primary);background:rgba(26,74,46,.08);font-weight:700}
+.filter-tabs button.active::after{
+  content:'';position:absolute;left:16%;right:16%;bottom:2px;height:3px;
+  background:var(--primary);border-radius:3px;
+}
+
+/* ============================================================
+   ORDER CARD
+   ============================================================ */
+.order-card{
+  background:var(--bg-white);border-radius:var(--radius);box-shadow:var(--shadow);
+  margin-bottom:12px;overflow:hidden;border:1.5px solid transparent;transition:border-color .3s,box-shadow .3s;
+}
+.order-card.flash{border-color:var(--secondary);box-shadow:0 0 0 4px rgba(193,127,36,.18)}
+.order-card.is-new{animation:newOrder 1.6s ease}
+@keyframes newOrder{0%,60%{background:#F0FDF4}100%{background:#fff}}
+.order-top{padding:13px 14px}
+.order-line1{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.order-no{font-weight:700;color:var(--primary);font-size:15.5px;flex-shrink:0}
+.order-name{font-weight:600;font-size:15.5px;flex:1;min-width:110px;word-break:break-word}
+.order-total{font-weight:700;color:var(--secondary);font-size:16px}
+.order-meta{display:flex;flex-wrap:wrap;gap:5px 14px;font-size:13px;color:var(--text-gray)}
+.order-meta span{display:inline-flex;align-items:center;gap:4px}
+.order-actions{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  padding:11px 14px;border-top:1px solid var(--border);background:var(--bg-soft);
+}
+.order-actions select{
+  padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;
+  font-size:13.5px;font-weight:600;background:var(--bg-white);cursor:pointer;
+}
+.order-actions select:focus{outline:none;border-color:var(--primary)}
+.icon-btn{
+  width:34px;height:34px;border-radius:7px;display:grid;place-items:center;font-size:15px;
+  background:var(--bg-white);border:1.5px solid var(--border);transition:background .2s,border-color .2s;
+}
+.icon-btn{cursor:pointer}
+.icon-btn:hover{background:#FEF2F2;border-color:#FECACA}
+.spacer{margin-left:auto}
+
+/* Order detail (expanded) */
+.order-detail{display:none;padding:14px;border-top:1px solid var(--border);background:#FCFCFD}
+.order-detail.open{display:block}
+.detail-h{
+  font-size:14px;font-weight:700;color:var(--primary);margin-bottom:9px;
+  padding-bottom:6px;border-bottom:2px solid rgba(26,74,46,.12);
+}
+.detail-h + .detail-h,.detail-block + .detail-block{margin-top:16px}
+.kv{display:flex;gap:8px;font-size:14px;margin-bottom:6px;flex-wrap:wrap;align-items:center}
+.kv .k{color:var(--text-gray);font-weight:600;flex-shrink:0}
+.kv .v{font-weight:500;word-break:break-word;flex:1;min-width:100px}
+.kv .v.note{background:#FFFBEB;border-radius:6px;padding:5px 9px;border:1px solid #FDE68A}
+.mini-btn{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;
+  font-size:12.5px;font-weight:700;background:var(--primary);color:#fff;
+}
+.mini-btn.wa{background:#25D366}
+.items-box{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--bg-white)}
+.item-row{display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:14px;border-bottom:1px solid var(--border)}
+.item-row:last-child{border-bottom:none}
+.item-row .nm{flex:1;font-weight:500;word-break:break-word}
+.item-row .qt{color:var(--text-gray);font-weight:600;white-space:nowrap}
+.item-row .pr{font-weight:700;color:var(--secondary);white-space:nowrap;min-width:60px;text-align:left}
+.totals{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+.totals .row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;color:var(--text-gray)}
+.totals .row.grand{
+  font-size:17px;font-weight:700;color:var(--text-dark);
+  border-top:1px solid var(--border);padding-top:8px;margin-top:8px;
+}
+.totals .row.grand span:last-child{color:var(--secondary)}
+
+/* Load more / bulk delete */
+.load-more{margin:6px 0 18px;text-align:center}
+.bulk-box{border:2px dashed #FCA5A5;background:#FFFBFB}
+.bulk-count{
+  font-size:15px;font-weight:700;padding:10px 12px;background:var(--bg-soft);
+  border-radius:var(--radius-sm);margin:10px 0;display:none;
+}
+.bulk-count.show{display:block}
+.bulk-actions{display:flex;gap:10px;flex-wrap:wrap}
+.bulk-presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.bulk-presets .lbl{font-size:14px;color:var(--text-gray);margin-right:4px}
+.preset-btn{
+  padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;
+  background:var(--bg-white);color:var(--primary);font-size:13px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:background .2s,color .2s,border-color .2s;
+}
+.preset-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.preset-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ============================================================
+   PRODUCTS
+   ============================================================ */
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:560px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
+@media(min-width:768px){.prod-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1100px){.prod-grid{grid-template-columns:repeat(4,1fr)}}
+.prod-card{
+  background:var(--bg-white);border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;
+}
+.prod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.prod-card.off{opacity:.72}
+.prod-img{aspect-ratio:1/1;background:var(--bg-soft);position:relative;overflow:hidden}
+.prod-img img{width:100%;height:100%;object-fit:cover}
+.prod-img .ph{width:100%;height:100%;display:grid;place-items:center;font-size:36px;background:linear-gradient(135deg,#F5F0E8,#FBF7F0)}
+.prod-img .off-tag{
+  position:absolute;top:8px;left:8px;background:rgba(17,24,39,.82);color:#fff;
+  padding:3px 9px;border-radius:50px;font-size:11.5px;font-weight:700;
+}
+.prod-img .disc-tag{
+  position:absolute;top:8px;right:8px;background:var(--secondary);color:#fff;
+  padding:3px 9px;border-radius:50px;font-size:11.5px;font-weight:700;
+}
+.prod-body{padding:11px;display:flex;flex-direction:column;gap:5px;flex:1}
+.prod-name{font-size:14.5px;font-weight:700;line-height:1.4}
+.prod-cat{font-size:12.5px;color:var(--text-gray)}
+.prod-price{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-top:2px}
+.prod-price .now{font-size:16px;font-weight:700;color:var(--secondary)}
+.prod-price .old{font-size:13px;color:var(--text-gray);text-decoration:line-through}
+.prod-foot{padding:0 11px 11px;display:flex;flex-direction:column;gap:9px}
+.prod-btns{display:flex;gap:7px}
+.prod-btns .btn{flex:1;padding:7px 6px;font-size:13px}
+
+/* Toggle switch */
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.toggle input{position:absolute;opacity:0;width:0;height:0}
+.toggle .track{
+  width:40px;height:22px;border-radius:50px;background:#CBD5E1;position:relative;
+  transition:background .22s;flex-shrink:0;
+}
+.toggle .track::after{
+  content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .22s;
+}
+.toggle input:checked + .track{background:var(--status-green)}
+.toggle input:checked + .track::after{transform:translateX(18px)}
+.toggle input:focus-visible + .track{box-shadow:0 0 0 3px rgba(26,74,46,.2)}
+.toggle .tl{font-size:12.5px;font-weight:600;color:var(--text-gray)}
+.toggle input:checked ~ .tl{color:var(--status-green)}
+
+/* Image upload */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center;
+  cursor:pointer;transition:border-color .2s,background .2s;background:var(--bg-soft);
+}
+.upload-zone:hover{border-color:var(--primary);background:#F0F5F2}
+.upload-zone .ic{font-size:26px}
+.upload-zone .tx{font-size:13.5px;font-weight:600;color:var(--text-gray);margin-top:3px}
+.img-preview{margin-top:10px;position:relative;display:none;max-width:170px}
+.img-preview.show{display:block}
+.img-preview img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.img-preview .rm{
+  position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;
+  background:var(--status-red);color:#fff;font-size:14px;display:grid;place-items:center;
+  box-shadow:var(--shadow-md);
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.overlay{
+  position:fixed;inset:0;z-index:1000;background:rgba(17,24,39,.55);
+  display:none;align-items:flex-end;justify-content:center;padding:0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.overlay.show{display:flex;animation:ovIn .2s ease}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg-white);width:100%;max-width:560px;border-radius:16px 16px 0 0;
+  box-shadow:var(--shadow-lg);animation:mdUp .28s cubic-bezier(.2,.8,.3,1);
+  margin-top:auto;max-height:94vh;display:flex;flex-direction:column;
+}
+@keyframes mdUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media(min-width:640px){
+  .overlay{align-items:center;padding:20px}
+  .modal{border-radius:16px;margin:auto;max-height:90vh}
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:16px 18px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.modal-head h3{font-size:17px;font-weight:700}
+.modal-close{
+  width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  font-size:19px;color:var(--text-gray);transition:background .2s;flex-shrink:0;
+}
+.modal-close:hover{background:var(--bg-soft);color:var(--text-dark)}
+.modal-body{padding:18px;overflow-y:auto;flex:1}
+.modal-body .field{margin-bottom:14px}
+.modal-foot{
+  display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);
+  flex-shrink:0;background:var(--bg-white);border-radius:0 0 16px 16px;
+}
+.modal-foot .btn{flex:1}
+.modal-sec{
+  font-size:13px;font-weight:700;color:var(--text-gray);text-transform:uppercase;
+  letter-spacing:.5px;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+}
+.modal-sec:first-child{margin-top:0}
+.confirm-icon{font-size:38px;text-align:center;margin-bottom:8px}
+.confirm-msg{text-align:center;font-size:15.5px;line-height:1.65}
+.confirm-sub{text-align:center;font-size:13px;color:var(--text-gray);margin-top:8px}
+.checkbox-row{display:flex;align-items:center;gap:9px;cursor:pointer;padding:4px 0}
+.checkbox-row input{width:19px;height:19px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+.checkbox-row span{font-size:14.5px;font-weight:600}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.setting-card{max-width:560px}
+.set-sec{
+  display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700;color:var(--primary);
+  margin-bottom:12px;
+}
+.set-sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.status-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:50px;
+  font-size:13.5px;font-weight:700;
+}
+.status-pill.on{background:#DCFCE7;color:#15803D}
+.status-pill.off{background:#FEF2F2;color:var(--status-red)}
+.readonly-box{
+  padding:11px 13px;background:var(--bg-soft);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-size:14.5px;font-weight:600;word-break:break-all;
+}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toastWrap{
+  position:fixed;left:50%;transform:translateX(-50%);z-index:1500;
+  bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 16px);
+  display:flex;flex-direction:column;gap:9px;align-items:center;
+  pointer-events:none;width:calc(100% - 32px);max-width:400px;
+}
+@media(min-width:900px){#toastWrap{bottom:24px}}
+.toast{
+  background:var(--primary-dark);color:#fff;padding:12px 18px;border-radius:50px;
+  font-size:14.5px;font-weight:600;box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;gap:8px;animation:tIn .3s ease;max-width:100%;text-align:center;
+}
+.toast.err{background:var(--status-red)}
+.toast.ok{background:#166534}
+.toast.hide{animation:tOut .3s ease forwards}
+@keyframes tIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tOut{to{transform:translateY(20px);opacity:0}}
+
+/* ============================================================
+   LOADING / EMPTY STATES
+   ============================================================ */
+.skel{
+  background:linear-gradient(90deg,#EEF0F3 25%,#F7F8FA 50%,#EEF0F3 75%);
+  background-size:200% 100%;animation:shim 1.3s infinite;border-radius:var(--radius);
+}
+@keyframes shim{to{background-position:-200% 0}}
+.skel-order{height:118px;margin-bottom:12px}
+.skel-stat{height:96px}
+.skel-prod{height:236px}
+.empty{
+  text-align:center;padding:44px 20px;background:var(--bg-white);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+}
+.empty .ic{font-size:42px;margin-bottom:8px}
+.empty .tx{font-size:15.5px;font-weight:600;color:var(--text-gray)}
+.empty .sub{font-size:13.5px;color:var(--text-gray);margin-top:5px;opacity:.85}
+.center-load{display:flex;align-items:center;justify-content:center;gap:9px;padding:30px;color:var(--text-gray);font-weight:600}
+.spinner{
+  width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--primary);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+#bootLoader{
+  position:fixed;inset:0;z-index:1200;background:var(--primary);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;
+}
+#bootLoader .mango{font-size:52px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.75}}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BOOT LOADER
+     ============================================================ -->
+<div id="bootLoader">
+  <div class="mango">🥭</div>
+  <div style="font-weight:600">লোড হচ্ছে...</div>
+</div>
+
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo">🥭</div>
+    <h1>আচার ওয়ালা</h1>
+    <div class="sub">Admin Panel</div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="loginEmail">ইমেইল</label>
+        <input type="email" id="loginEmail" autocomplete="username" inputmode="email" placeholder="admin@acharwala.shop" required>
+      </div>
+      <div class="field">
+        <label for="loginPass">পাসওয়ার্ড</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">লগইন করুন</button>
+    </form>
+
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-foot">শুধুমাত্র অ্যাডমিনের জন্য 🔒</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div id="app" class="hidden">
+
+  <!-- Top navbar -->
+  <nav id="topNav">
+    <div class="inner">
+      <div class="brand">
+        <span class="mango">🥭</span>
+        <span>আচার ওয়ালা</span>
+        <span class="adm">Admin</span>
+      </div>
+
+      <div class="nav-links" id="navLinks">
+        <button data-tab="dashboard" class="active">ড্যাশবোর্ড</button>
+        <button data-tab="orders">অর্ডার</button>
+        <button data-tab="products">পণ্য</button>
+        <button data-tab="settings">সেটিংস</button>
+      </div>
+
+      <div class="nav-right">
+        <button class="bell" id="bellBtn" title="পেন্ডিং অর্ডার" aria-label="পেন্ডিং অর্ডার">
+          🔔<span class="cnt zero" id="bellCount">0</span>
+        </button>
+        <button class="logout-btn" id="logoutBtn">
+          <span>⏻</span><span class="txt">লগআউট</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ==================================================
+         TAB 1 — DASHBOARD
+         ================================================== -->
+    <section class="page active" id="page-dashboard">
+      <div class="container">
+        <div class="page-head">
+          <div>
+            <div class="page-title">📊 ড্যাশবোর্ড</div>
+            <div class="page-sub" id="dashGreeting">আজকের হিসাব এক নজরে</div>
+          </div>
+        </div>
+
+        <div class="stats" id="statsGrid"></div>
+
+        <!-- Storage widget -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">📊 Supabase স্টোরেজ ব্যবহার</div>
+          <div class="bar-track"><div class="bar-fill" id="storageBar"></div></div>
+          <div class="storage-meta">
+            <span id="storageText">হিসাব করা হচ্ছে...</span>
+            <span id="storagePct">০%</span>
+          </div>
+          <div id="storageAlert"></div>
+          <div class="page-sub" style="margin-top:10px">
+            আনুমানিক হিসাব — প্রতি অর্ডারে ~১.৫ কিলোবাইট ধরে ৫০০ মেগাবাইট সীমার তুলনায়।
+          </div>
+        </div>
+
+        <!-- Recent orders -->
+        <div class="card">
+          <div class="card-title">🕒 সাম্প্রতিক অর্ডার</div>
+          <div class="table-scroll">
+            <table class="mini-table">
+              <thead>
+                <tr><th>#</th><th>গ্রাহক</th><th>মোট</th><th>স্ট্যাটাস</th><th>সময়</th></tr>
+              </thead>
+              <tbody id="recentBody"></tbody>
+            </table>
+          </div>
+          <div id="recentEmpty"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         TAB 2 — ORDERS
+         ================================================== -->
+    <section class="page" id="page-orders">
+      <div class="container">
+        <div class="page-head">
+          <div>
+            <div class="page-title">📦 অর্ডার</div>
+            <div class="page-sub">নতুন অর্ডার সবার উপরে</div>
+          </div>
+        </div>
+
+        <div class="filter-tabs" id="filterTabs">
+          <button data-status="all">সব (<span data-count="all">০</span>)</button>
+          <button data-status="pending" class="active">পেন্ডিং (<span data-count="pending">০</span>)</button>
+          <button data-status="confirmed">কনফার্মড (<span data-count="confirmed">০</span>)</button>
+          <button data-status="delivered">ডেলিভারড (<span data-count="delivered">০</span>)</button>
+        </div>
+
+        <div id="orderList"></div>
+        <div class="load-more" id="loadMoreWrap"></div>
+
+        <!-- Bulk delete -->
+        <div class="card bulk-box" id="bulkBox">
+          <div class="card-title">📦 পুরনো অর্ডার ডিলিট করুন</div>
+          <div class="bulk-presets">
+            <span class="lbl">দ্রুত নির্বাচন:</span>
+            <button type="button" class="preset-btn" data-days="2">শেষ ২ দিন</button>
+            <button type="button" class="preset-btn" data-days="3">শেষ ৩ দিন</button>
+            <button type="button" class="preset-btn" data-days="7">শেষ ৭ দিন</button>
+            <button type="button" class="preset-btn" data-days="10">শেষ ১০ দিন</button>
+            <button type="button" class="preset-btn" data-days="30">শেষ ৩০ দিন</button>
+            <button type="button" class="preset-btn" data-days="all">সব অর্ডার</button>
+          </div>
+          <div class="field">
+            <label for="bulkDate">এই তারিখের আগের সব অর্ডার ডিলিট হবে</label>
+            <input type="date" id="bulkDate">
+            <div class="hint">নির্বাচিত তারিখের আগে তৈরি হওয়া অর্ডারগুলো গণনা করা হবে। উপরের বাটনগুলো “শেষ X দিন” বাদ দিয়ে তার চেয়ে পুরনো অর্ডার বেছে নেয়।</div>
+          </div>
+          <div class="bulk-count" id="bulkCount"></div>
+          <div class="alert alert-warn">
+            <span>⚠️</span>
+            <span>ডিলিটের আগে সব অর্ডারের CSV ফাইল অটো ডাউনলোড হবে। ডিলিট করা অর্ডার আর ফেরত আনা যাবে না।</span>
+          </div>
+          <div class="bulk-actions" style="margin-top:12px">
+            <button class="btn btn-outline" id="bulkCancelBtn">বাতিল</button>
+            <button class="btn btn-danger" id="bulkDeleteBtn" disabled>CSV ডাউনলোড ও ডিলিট করুন</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         TAB 3 — PRODUCTS
+         ================================================== -->
+    <section class="page" id="page-products">
+      <div class="container">
+        <div class="page-head">
+          <div>
+            <div class="page-title">🏷 পণ্য</div>
+            <div class="page-sub" id="prodCountText">—</div>
+          </div>
+          <button class="btn btn-primary" id="addProductBtn">➕ নতুন পণ্য যোগ করুন</button>
+        </div>
+
+        <div class="card" style="padding:12px;margin-bottom:14px">
+          <div class="field" style="margin:0">
+            <label for="catFilter">ক্যাটাগরি অনুযায়ী দেখুন</label>
+            <select id="catFilter"><option value="all">সব ক্যাটাগরি</option></select>
+          </div>
+        </div>
+
+        <div class="prod-grid" id="productGrid"></div>
+        <div id="productEmpty"></div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         TAB 4 — SETTINGS
+         ================================================== -->
+    <section class="page" id="page-settings">
+      <div class="container">
+        <div class="page-head">
+          <div>
+            <div class="page-title">⚙️ সেটিংস</div>
+            <div class="page-sub">ডেলিভারি চার্জ, অ্যাকাউন্ট ও নোটিফিকেশন</div>
+          </div>
+        </div>
+
+        <!-- Delivery charges -->
+        <div class="card setting-card">
+          <div class="set-sec">🚚 ডেলিভারি চার্জ</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="setInside">খুলনার ভিতরে (৳)</label>
+              <input type="number" id="setInside" min="0" step="1" inputmode="numeric" placeholder="80">
+            </div>
+            <div class="field">
+              <label for="setOutside">খুলনার বাইরে (৳)</label>
+              <input type="number" id="setOutside" min="0" step="1" inputmode="numeric" placeholder="150">
+            </div>
+          </div>
+          <button class="btn btn-primary" id="saveDeliveryBtn">আপডেট করুন</button>
+        </div>
+
+        <!-- Admin account -->
+        <div class="card setting-card">
+          <div class="set-sec">👤 অ্যাডমিন অ্যাকাউন্ট</div>
+          <div class="field">
+            <span class="lbl">ইমেইল</span>
+            <div class="readonly-box" id="adminEmail">—</div>
+          </div>
+          <div id="pwWrap" class="hidden">
+            <div class="field">
+              <label for="newPass">নতুন পাসওয়ার্ড</label>
+              <input type="password" id="newPass" autocomplete="new-password" placeholder="কমপক্ষে ৬ অক্ষর">
+            </div>
+            <div class="field">
+              <label for="newPass2">পাসওয়ার্ড আবার লিখুন</label>
+              <input type="password" id="newPass2" autocomplete="new-password" placeholder="আবার লিখুন">
+              <div class="err-msg" id="pwErr"></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-outline" id="pwCancelBtn">বাতিল</button>
+              <button class="btn btn-primary" id="pwSaveBtn">পাসওয়ার্ড সেভ করুন</button>
+            </div>
+          </div>
+          <button class="btn btn-outline" id="pwToggleBtn">🔑 পাসওয়ার্ড পরিবর্তন করুন</button>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card setting-card">
+          <div class="set-sec">🔔 নোটিফিকেশন</div>
+          <div class="kv" style="margin-bottom:12px">
+            <span class="k">FCM স্ট্যাটাস:</span>
+            <span class="status-pill off" id="fcmStatus">❌ নিষ্ক্রিয়</span>
+          </div>
+          <div class="page-sub" id="fcmNote">নোটিফিকেশন পারমিশন দিলে নতুন অর্ডার এলে সাথে সাথে জানতে পারবেন।</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="permBtn">নোটিফিকেশন পারমিশন দিন</button>
+            <button class="btn btn-outline" id="testNotifBtn">টেস্ট নোটিফিকেশন</button>
+          </div>
+        </div>
+
+        <!-- Realtime status -->
+        <div class="card setting-card">
+          <div class="set-sec">📡 রিয়েলটাইম সংযোগ</div>
+          <div class="kv">
+            <span class="k">অর্ডার লাইভ আপডেট:</span>
+            <span class="status-pill off" id="rtStatus">⏳ সংযোগ হচ্ছে...</span>
+          </div>
+          <div class="page-sub" style="margin-top:8px">
+            সংযুক্ত থাকলে নতুন অর্ডার নিজে থেকেই তালিকায় যোগ হবে — রিফ্রেশ করার দরকার নেই।
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom tab bar (mobile / APK) -->
+  <nav id="bottomTabs">
+    <button data-tab="dashboard" class="active"><span class="ic">📊</span><span>ড্যাশবোর্ড</span></button>
+    <button data-tab="orders"><span class="ic">📦</span><span>অর্ডার</span><span class="tab-badge zero" id="tabBadge">0</span></button>
+    <button data-tab="products"><span class="ic">🏷</span><span>পণ্য</span></button>
+    <button data-tab="settings"><span class="ic">⚙️</span><span>সেটিংস</span></button>
+  </nav>
+</div>
+
+<!-- ============================================================
+     PRODUCT MODAL
+     ============================================================ -->
+<div class="overlay" id="productOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="prodModalTitle">
+    <div class="modal-head">
+      <h3 id="prodModalTitle">নতুন পণ্য যোগ করুন</h3>
+      <button class="modal-close" data-close="productOverlay" aria-label="বন্ধ করুন">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="productForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="pNameBn">পণ্যের নাম (বাংলা) <span class="req">*</span></label>
+            <input type="text" id="pNameBn" placeholder="কাঁচা আমের আচার">
+            <div class="err-msg" id="errNameBn"></div>
+          </div>
+          <div class="field">
+            <label for="pNameEn">পণ্যের নাম (English)</label>
+            <input type="text" id="pNameEn" placeholder="Raw Mango Pickle">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="pCatBn">ক্যাটাগরি (বাংলা) <span class="req">*</span></label>
+            <input type="text" id="pCatBn" list="catList" placeholder="আমের আচার" autocomplete="off">
+            <datalist id="catList"></datalist>
+            <div class="hint">তালিকা থেকে বাছুন অথবা নতুন নাম লিখুন</div>
+            <div class="err-msg" id="errCatBn"></div>
+          </div>
+          <div class="field">
+            <label for="pCatEn">Category (English)</label>
+            <input type="text" id="pCatEn" placeholder="Mango Pickle">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="pPrice">মূল দাম (৳) <span class="req">*</span></label>
+            <input type="number" id="pPrice" min="0" step="1" inputmode="numeric" placeholder="350">
+            <div class="err-msg" id="errPrice"></div>
+          </div>
+          <div class="field">
+            <label for="pDiscount">ডিসকাউন্ট দাম (৳)</label>
+            <input type="number" id="pDiscount" min="0" step="1" inputmode="numeric" placeholder="280">
+            <div class="hint">খালি রাখলে কোনো ডিসকাউন্ট দেখাবে না</div>
+            <div class="err-msg" id="errDiscount"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lbl">ছবি আপলোড</span>
+          <div class="upload-zone" id="uploadZone">
+            <div class="ic">📷</div>
+            <div class="tx">ছবি বাছাই করুন (JPG / PNG, সর্বোচ্চ ২ MB)</div>
+          </div>
+          <input type="file" id="pImage" accept="image/jpeg,image/jpg,image/png" class="sr-only">
+          <div class="img-preview" id="imgPreview">
+            <img id="imgPreviewEl" alt="ছবির প্রিভিউ">
+            <button type="button" class="rm" id="removeImgBtn" aria-label="ছবি সরান">✕</button>
+          </div>
+          <div class="err-msg" id="errImage"></div>
+        </div>
+
+        <div class="field">
+          <label for="pDescBn">বিবরণ (বাংলা)</label>
+          <textarea id="pDescBn" placeholder="খাঁটি সরিষার তেলে তৈরি, প্রিজারভেটিভমুক্ত..."></textarea>
+        </div>
+        <div class="field">
+          <label for="pDescEn">Description (English)</label>
+          <textarea id="pDescEn" placeholder="Made with pure mustard oil, preservative free..."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="pSort">ক্রম (sort_order)</label>
+          <input type="number" id="pSort" step="1" inputmode="numeric" value="0">
+          <div class="hint">ছোট সংখ্যা আগে দেখাবে</div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="pAvailable" checked>
+          <span>ওয়েবসাইটে দেখাও (Available)</span>
+        </label>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-close="productOverlay">বাতিল</button>
+      <button class="btn btn-primary" id="saveProductBtn">সেভ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONFIRM MODAL
+     ============================================================ -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal" style="max-width:420px" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-head">
+      <h3 id="confirmTitle">নিশ্চিত করুন</h3>
+      <button class="modal-close" id="confirmX" aria-label="বন্ধ করুন">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon" id="confirmIcon">⚠️</div>
+      <div class="confirm-msg" id="confirmMsg"></div>
+      <div class="confirm-sub" id="confirmSub"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" id="confirmNo">বাতিল</button>
+      <button class="btn btn-danger" id="confirmYes">ডিলিট করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ============================================================
+     LIBRARIES
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js"></script>
+
+<script>
+/* ============================================================
+   ACHAR WALA — admin.html application script
+   ============================================================ */
+(function () {
+  'use strict';
+
+  /* ---------------- Config ---------------- */
+  const SUPABASE_URL = 'https://jlvhukkyvrgestjuazra.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsdmh1a2t5dnJnZXN0anVhenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyODkzNzUsImV4cCI6MjEwMjg2NTM3NX0.7P20aJ8EDRgSd4Zm9yhYj2lB6-491yDUk6KJORKavoM';
+
+  const firebaseConfig = {
+    apiKey: 'AIzaSyCYv4oW83jo9ZVcJbyXjasnqdA9h3pttyw',
+    authDomain: 'achar-wala.firebaseapp.com',
+    projectId: 'achar-wala',
+    storageBucket: 'achar-wala.firebasestorage.app',
+    messagingSenderId: '83891655859',
+    appId: '1:83891655859:web:024651eb1f328afe714cc6'
+  };
+  const VAPID_KEY = 'BGVjvfAFpO176jBM3GWNUISbfRrXzT_M9lAEvTJyH9RHpJPx3f7Zxb9MUz-B_impVuI730ah5P52Pyu6rQHuhis';
+
+  const BUCKET = 'product-images';
+  const BUCKET_MISSING_BN = 'স্টোরেজ বাকেট "product-images" পাওয়া যায়নি। Supabase Dashboard → Storage → New bucket → নাম "product-images" দিয়ে Public bucket তৈরি করুন।';
+  const PAGE_SIZE = 30;
+  const STORAGE_LIMIT_MB = 500;
+  const KB_PER_ORDER = 1.5;
+  const ICON = 'icons/icon-192x192.png';
+
+  /* A pass-through lock replaces the default navigator.locks implementation.
+     The default lock is held while onAuthStateChange subscribers run, so any
+     getSession() / PostgREST call made from a subscriber — or on the first tick
+     after sign-in — waits on a lock that will not be released. The access token
+     then resolves empty, the query goes out with the bare anon key, and RLS
+     rejects it as "permission denied". This panel is single-tab, so cross-tab
+     locking buys nothing. */
+  function passThroughLock(_name, _acquireTimeout, fn) { return fn(); }
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+      storage: window.localStorage,
+      storageKey: 'acharwala-admin-auth',
+      lock: passThroughLock
+    }
+  });
+
+  /* ---------------- State ---------------- */
+  const state = {
+    user: null,
+    tab: 'dashboard',
+    orderFilter: 'pending',
+    orders: [],          // currently loaded page(s) of the active filter
+    orderPage: 0,
+    orderHasMore: false,
+    expanded: {},        // orderId -> bool
+    counts: { all: 0, pending: 0, confirmed: 0, delivered: 0, today: 0, revenue: 0 },
+    products: [],
+    catFilter: 'all',
+    editingProduct: null,
+    hasSortOrder: true,  // flipped off if products.sort_order turns out to be missing
+    pickedImage: null,   // File
+    removeExistingImage: false,
+    settings: { delivery_inside_khulna: 80, delivery_outside_khulna: 150 },
+    bulk: { date: null, count: 0, label: '' },
+    channel: null,
+    entering: false,     // enterApp() in flight — blocks a duplicate run
+    fcmToken: localStorage.getItem('fcm_token') || null,
+    highlightId: null,
+    booted: false
+  };
+
+  /* ---------------- DOM helpers ---------------- */
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+  const BN_DIGITS = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  function bn(v) { return String(v).replace(/\d/g, d => BN_DIGITS[+d]); }
+  function num(v) { return bn(Math.round(Number(v) || 0)); }
+  function money(v) { return '৳' + bn(Math.round(Number(v) || 0)); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  /** "21 Aug 2026, 3:45 PM" */
+  function fmtDateTime(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return '—';
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const m = String(d.getMinutes()).padStart(2, '0');
+    return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ', ' + h + ':' + m + ' ' + ap;
+  }
+  /** "২ মিনিট আগে" */
+  function relTime(iso) {
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (isNaN(diff)) return '—';
+    if (diff < 45) return 'এইমাত্র';
+    const mi = Math.floor(diff / 60);
+    if (mi < 60) return bn(Math.max(mi, 1)) + ' মিনিট আগে';
+    const hr = Math.floor(mi / 60);
+    if (hr < 24) return bn(hr) + ' ঘন্টা আগে';
+    const dy = Math.floor(hr / 24);
+    if (dy < 30) return bn(dy) + ' দিন আগে';
+    const mo = Math.floor(dy / 30);
+    if (mo < 12) return bn(mo) + ' মাস আগে';
+    return bn(Math.floor(mo / 12)) + ' বছর আগে';
+  }
+  function todayStartISO() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }
+  /** 01712345678 -> 8801712345678 */
+  function waPhone(phone) {
+    let p = String(phone || '').replace(/\D/g, '');
+    if (p.startsWith('880')) return p;
+    if (p.startsWith('0')) return '88' + p;
+    if (p.startsWith('88')) return p;
+    return '88' + p;
+  }
+
+  const STATUS_BN = { pending: 'পেন্ডিং', confirmed: 'কনফার্মড', delivered: 'ডেলিভারড' };
+  const STATUS_DOT = { pending: '🔴', confirmed: '🟡', delivered: '🟢' };
+  const ZONE_BN = { inside_khulna: 'খুলনার ভিতরে', outside_khulna: 'খুলনার বাইরে' };
+  function zoneBn(z) { return ZONE_BN[z] || z || '—'; }
+
+  /* ---------------- Toast ---------------- */
+  const toastWrap = $('#toastWrap');
+  function toast(msg, kind) {
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind === 'err' ? ' err' : kind === 'ok' ? ' ok' : '');
+    el.textContent = msg;
+    toastWrap.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('hide');
+      setTimeout(() => el.remove(), 320);
+    }, 3000);
+  }
+
+  /** True when a PostgREST error is the missing products.sort_order column. */
+  function isMissingSortOrder(err) {
+    if (!err) return false;
+    return /sort_order/i.test(String(err.message || '') + ' ' + String(err.details || ''));
+  }
+
+  /* ---------------- Error handling ---------------- */
+  function friendlyError(err) {
+    const msg = (err && (err.message || err.error_description || err.error)) || '';
+    if (/Failed to fetch|NetworkError|network/i.test(msg)) return 'ইন্টারনেট সংযোগ পাওয়া যাচ্ছে না।';
+    if (/Invalid login credentials/i.test(msg)) return 'ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।';
+    if (/Email not confirmed/i.test(msg)) return 'ইমেইলটি এখনো ভেরিফাই করা হয়নি।';
+    if (/JWT|token is expired|not authenticated|session/i.test(msg)) return 'সেশন শেষ হয়ে গেছে। আবার লগইন করুন।';
+    if (/row-level security|permission denied|violates/i.test(msg)) return 'অনুমতি নেই — আবার লগইন করে চেষ্টা করুন।';
+    if (/Bucket not found|bucket.*not.*exist/i.test(msg)) return BUCKET_MISSING_BN;
+    if (/sort_order/i.test(msg)) return 'sort_order কলামটি নেই — Supabase SQL Editor-এ ALTER TABLE products ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0; চালান।';
+    if (/Password should be/i.test(msg)) return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+    return msg || 'কিছু একটা সমস্যা হয়েছে।';
+  }
+  function handleError(err, fallback) {
+    console.error(err);
+    const msg = (err && err.message) || '';
+    if (/JWT|token is expired|not authenticated/i.test(msg)) {
+      toast('সেশন শেষ হয়ে গেছে। আবার লগইন করুন।', 'err');
+      forceLogout();
+      return;
+    }
+    toast(fallback ? fallback + ' — ' + friendlyError(err) : friendlyError(err), 'err');
+  }
+
+  /* ---------------- Session guard ----------------
+     Every data-loading call runs through this first. If the stored session is
+     missing or expired we try one silent refresh before giving up. */
+  async function getActiveSession() {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      const s = (!error && data) ? data.session : null;
+
+      // getSession() reads local storage only, so it will happily hand back a
+      // token that has already expired. PostgREST rejects such a token and the
+      // UI reads that as "অনুমতি নেই" — refresh before it can happen.
+      if (s && s.access_token) {
+        const expAt = Number(s.expires_at) || 0;
+        if (!expAt || (expAt * 1000 - Date.now()) > 60000) return s;
+      }
+      const r = await supabase.auth.refreshSession();
+      if (r.error || !r.data || !r.data.session) return null;
+      return r.data.session;
+    } catch (e) {
+      console.error('session check failed', e);
+      return null;
+    }
+  }
+
+  /** True when a session is live; otherwise warns and drops back to login. */
+  async function requireSession() {
+    const s = await getActiveSession();
+    if (!s) {
+      toast('সেশন মেয়াদ শেষ — আবার লগইন করুন', 'err');
+      forceLogout();
+      return false;
+    }
+    state.user = s.user;
+    return true;
+  }
+
+  /** Auth/JWT failures that mean "log in again" rather than a real data error. */
+  function isAuthError(err) {
+    if (!err) return false;
+    const msg = String(err.message || '');
+    const code = String(err.code || err.status || '');
+    return code === 'PGRST301' || code === '401' ||
+      /JWT|token is expired|not authenticated|refresh_token/i.test(msg);
+  }
+
+  /* ============================================================
+     AUTH
+     ============================================================ */
+  const loginScreen = $('#loginScreen');
+  const appEl = $('#app');
+  const bootLoader = $('#bootLoader');
+
+  async function boot() {
+    try {
+      const session = await getActiveSession();
+      if (session) {
+        // A locally stored token can still be revoked server-side. getUser()
+        // asks Supabase to validate it, so we never land on a dashboard where
+        // every query is going to fail.
+        const chk = await supabase.auth.getUser();
+        if (chk.error || !chk.data || !chk.data.user) {
+          const r = await supabase.auth.refreshSession();
+          if (r.error || !r.data || !r.data.session) { showLogin(); return; }
+          state.user = r.data.session.user;
+        } else {
+          state.user = chk.data.user;
+        }
+        await enterApp();
+      } else {
+        showLogin();
+      }
+    } catch (err) {
+      console.error('session check failed', err);
+      showLogin();
+    } finally {
+      bootLoader.classList.add('hidden');
+    }
+  }
+
+  function showLogin() {
+    state.user = null;
+    appEl.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    bootLoader.classList.add('hidden');
+    setTimeout(() => $('#loginEmail').focus(), 120);
+  }
+
+  async function enterApp() {
+    // Both the login handler and the SIGNED_IN auth event can reach here for the
+    // same login; the guard keeps realtime + the initial queries running once.
+    if (state.entering) return;
+    state.entering = true;
+    state.booted = true;
+
+    loginScreen.classList.add('hidden');
+    appEl.classList.remove('hidden');
+    $('#adminEmail').textContent = (state.user && state.user.email) || '—';
+
+    setupRealtime();
+    initFirebase();
+    refreshFcmUi();
+
+    // Paint the six stat cards + storage widget straight away with zeros, so
+    // the dashboard is never blank even if the counts query below fails.
+    renderStats();
+    renderCounts();
+    renderStorage();
+
+    try {
+      await Promise.all([
+        refreshCounts(),
+        loadSettings(),
+        loadProducts(),
+        renderDashboard(),
+        loadOrders(true)
+      ]);
+    } finally {
+      state.entering = false;
+    }
+  }
+
+  $('#loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const email = $('#loginEmail').value.trim();
+    const pass = $('#loginPass').value;
+    const errBox = $('#loginErr');
+    const btn = $('#loginBtn');
+    errBox.classList.remove('show');
+
+    if (!email || !pass) {
+      errBox.textContent = '❌ ইমেইল ও পাসওয়ার্ড দুটোই দিন।';
+      errBox.classList.add('show');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: pass });
+      if (error) throw error;
+      if (!data || !data.session) throw new Error('সেশন তৈরি হয়নি — আবার চেষ্টা করুন।');
+      state.user = data.session.user;
+      $('#loginPass').value = '';
+
+      // Give the client a tick to persist the new session, then prove the JWT
+      // actually reaches PostgREST before painting the dashboard. Skipping this
+      // lets the first batch of queries go out unauthenticated, which is what
+      // made every panel render "অনুমতি নেই" right after a successful login.
+      await new Promise(function (r) { setTimeout(r, 300); });
+      const probe = await supabase.from('orders').select('id', { count: 'exact', head: true });
+      if (probe.error) {
+        console.warn('session probe failed — forcing a refresh', probe.error);
+        await supabase.auth.refreshSession();
+        await new Promise(function (r) { setTimeout(r, 300); });
+      }
+
+      await enterApp();
+      toast('স্বাগতম! লগইন সফল হয়েছে ✅', 'ok');
+    } catch (err) {
+      errBox.textContent = '❌ ' + friendlyError(err);
+      errBox.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+
+  function teardownRealtime() {
+    if (state.channel) {
+      try { supabase.removeChannel(state.channel); } catch (e) { /* ignore */ }
+      state.channel = null;
+    }
+    setRtStatus(false);
+  }
+
+  function forceLogout() {
+    teardownRealtime();
+    try { supabase.auth.signOut(); } catch (e) { /* ignore */ }
+    state.user = null;
+    state.booted = false;
+    state.entering = false;
+    state.orders = [];
+    state.products = [];
+    appEl.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+  }
+
+  $('#logoutBtn').addEventListener('click', async function () {
+    const ok = await confirmModal({
+      title: 'লগআউট',
+      icon: '⏻',
+      msg: 'আপনি কি লগআউট করতে চান?',
+      yes: 'লগআউট করুন',
+      danger: false
+    });
+    if (!ok) return;
+    try {
+      teardownRealtime();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error(err);
+    }
+    forceLogout();
+    toast('লগআউট হয়েছে');
+  });
+
+  supabase.auth.onAuthStateChange(function (event, session) {
+    // Nothing here may touch supabase.* synchronously: subscribers run while
+    // the auth lock is held, so a query started from this stack would stall and
+    // come back without a token. Defer everything to the next macrotask.
+    setTimeout(function () {
+      console.log('Auth event:', event);
+      if (event === 'SIGNED_OUT' || !session) {
+        if (state.user) forceLogout();
+        return;
+      }
+      state.user = session.user;
+      $('#adminEmail').textContent = (session.user && session.user.email) || '—';
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed — session still live');
+        return;
+      }
+      // A token refresh while the app is open must not re-run boot; only a fresh
+      // sign-in (e.g. from another tab) needs the app brought up.
+      if (event === 'SIGNED_IN' && !state.booted) enterApp();
+    }, 0);
+  });
+
+  /* ============================================================
+     TAB NAVIGATION
+     ============================================================ */
+  function switchTab(tab) {
+    state.tab = tab;
+    $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+    $$('#navLinks button, #bottomTabs button').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === tab));
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+  $$('#navLinks button, #bottomTabs button').forEach(b => {
+    b.addEventListener('click', () => switchTab(b.dataset.tab));
+  });
+  $('#bellBtn').addEventListener('click', function () {
+    switchTab('orders');
+    setOrderFilter('pending');
+  });
+
+  /* ============================================================
+     COUNTS + DASHBOARD
+     ============================================================ */
+  async function countOrders(status) {
+    let q = supabase.from('orders').select('id', { count: 'exact', head: true });
+    if (status) q = q.eq('status', status);
+    const { count, error } = await q;
+    if (error) throw error;
+    return count || 0;
+  }
+
+  async function refreshCounts() {
+    if (!(await requireSession())) return;
+    try {
+      const [all, pending, confirmed, delivered] = await Promise.all([
+        countOrders(null),
+        countOrders('pending'),
+        countOrders('confirmed'),
+        countOrders('delivered')
+      ]);
+
+      const todayRes = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', todayStartISO());
+      if (todayRes.error) throw todayRes.error;
+
+      // Revenue is ONLY the sum of orders.total across delivered orders. It
+      // must never pick anything up from the settings table (the ৳৮০ delivery
+      // charge), so with no delivered orders it stays exactly ৳০.
+      let revenue = 0;
+      if (delivered > 0) {
+        const revRes = await supabase.from('orders').select('total').eq('status', 'delivered');
+        if (revRes.error) throw revRes.error;
+        revenue = (revRes.data || []).reduce(function (s, o) {
+          const n = parseFloat(o.total);
+          return s + (isNaN(n) ? 0 : n);
+        }, 0);
+      }
+
+      state.counts = {
+        all: all, pending: pending, confirmed: confirmed, delivered: delivered,
+        today: todayRes.count || 0, revenue: revenue
+      };
+      renderCounts();
+      renderStats();
+      renderStorage();
+    } catch (err) {
+      handleError(err, 'হিসাব লোড করা যায়নি');
+    }
+  }
+
+  function renderCounts() {
+    const c = state.counts;
+    $$('#filterTabs [data-count]').forEach(el => { el.textContent = bn(c[el.dataset.count] || 0); });
+    const bell = $('#bellCount');
+    bell.textContent = bn(c.pending);
+    bell.classList.toggle('zero', c.pending === 0);
+    const badge = $('#tabBadge');
+    badge.textContent = bn(c.pending);
+    badge.classList.toggle('zero', c.pending === 0);
+  }
+
+  const STAT_DEFS = [
+    { key: 'all',       icon: '📦', label: 'মোট অর্ডার',        color: '#2563EB' },
+    { key: 'pending',   icon: '⏳', label: 'পেন্ডিং অর্ডার',     color: '#DC2626' },
+    { key: 'confirmed', icon: '✅', label: 'কনফার্মড অর্ডার',    color: '#F59E0B' },
+    { key: 'delivered', icon: '🚚', label: 'ডেলিভারড অর্ডার',   color: '#16A34A' },
+    { key: 'today',     icon: '📅', label: 'আজকের অর্ডার',      color: '#7C3AED' },
+    { key: 'revenue',   icon: '💰', label: 'মোট আয় (ডেলিভারড)', color: '#C17F24', money: true }
+  ];
+
+  function renderStats() {
+    $('#statsGrid').innerHTML = STAT_DEFS.map(function (d) {
+      const raw = state.counts[d.key] || 0;
+      const val = d.money ? money(raw) : num(raw);
+      return '<div class="stat" style="--c:' + d.color + '">' +
+        '<span class="ic">' + d.icon + '</span>' +
+        '<span class="val">' + val + '</span>' +
+        '<span class="lbl">' + d.label + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderStorage() {
+    const mb = (state.counts.all * KB_PER_ORDER) / 1024;
+    const pct = Math.min((mb / STORAGE_LIMIT_MB) * 100, 100);
+    const bar = $('#storageBar');
+    bar.style.width = Math.max(pct, 1.5) + '%';
+    bar.classList.remove('warn', 'crit');
+    if (pct >= 80) bar.classList.add('crit');
+    else if (pct >= 60) bar.classList.add('warn');
+
+    $('#storageText').textContent = '~' + bn(mb.toFixed(1)) + ' MB / ' + bn(STORAGE_LIMIT_MB) +
+      ' MB — ' + num(state.counts.all) + 'টি অর্ডার';
+    $('#storagePct').textContent = bn(pct.toFixed(1)) + '%';
+
+    const box = $('#storageAlert');
+    if (pct >= 80) {
+      box.innerHTML = '<div class="alert alert-crit"><span>⚠️</span><span>স্টোরেজ প্রায় পূর্ণ! এখনই পুরনো অর্ডার ডিলিট করুন। ' +
+        '<button type="button" id="goBulk">পুরনো অর্ডার ডিলিট করুন →</button></span></div>';
+    } else if (pct >= 60) {
+      box.innerHTML = '<div class="alert alert-warn"><span>⚠️</span><span>স্টোরেজ ' + bn(Math.round(pct)) +
+        '% পূর্ণ। স্টোরেজ পরিষ্কার করার সময় আসছে। ' +
+        '<button type="button" id="goBulk">পুরনো অর্ডার ডিলিট করুন →</button></span></div>';
+    } else {
+      box.innerHTML = '';
+    }
+    const gb = $('#goBulk');
+    if (gb) gb.addEventListener('click', function () {
+      switchTab('orders');
+      setTimeout(function () {
+        $('#bulkBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    });
+  }
+
+  async function renderDashboard() {
+    const body = $('#recentBody');
+    const emptyBox = $('#recentEmpty');
+    body.innerHTML = '<tr><td colspan="5"><div class="center-load"><span class="spinner"></span> লোড হচ্ছে...</div></td></tr>';
+    emptyBox.innerHTML = '';
+    if (!(await requireSession())) { body.innerHTML = ''; return; }
+    try {
+      const { data, error } = await supabase
+        .from('orders').select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+
+      if (!data || !data.length) {
+        body.innerHTML = '';
+        emptyBox.innerHTML = '<div class="empty" style="box-shadow:none;padding:28px"><div class="ic">📭</div>' +
+          '<div class="tx">এখনো কোনো অর্ডার নেই</div></div>';
+        return;
+      }
+      body.innerHTML = data.map(function (o) {
+        return '<tr data-id="' + esc(o.id) + '">' +
+          '<td class="num">#' + bn(o.order_number) + '</td>' +
+          '<td>' + esc(o.customer_name) + '</td>' +
+          '<td class="amt">' + money(o.total) + '</td>' +
+          '<td><span class="badge badge-' + esc(o.status) + '">' + (STATUS_DOT[o.status] || '') + ' ' +
+            (STATUS_BN[o.status] || o.status) + '</span></td>' +
+          '<td class="tm">' + relTime(o.created_at) + '</td>' +
+          '</tr>';
+      }).join('');
+
+      $$('#recentBody tr').forEach(function (tr) {
+        tr.addEventListener('click', function () { jumpToOrder(tr.dataset.id); });
+      });
+    } catch (err) {
+      body.innerHTML = '';
+      emptyBox.innerHTML = '<div class="alert alert-crit"><span>⚠️</span><span>সাম্প্রতিক অর্ডার লোড করা যায়নি — ' +
+        esc(friendlyError(err)) + '</span></div>';
+      console.error(err);
+      if (isAuthError(err)) { toast('সেশন মেয়াদ শেষ — আবার লগইন করুন', 'err'); forceLogout(); }
+    }
+  }
+
+  async function jumpToOrder(id) {
+    state.highlightId = id;
+    switchTab('orders');
+    if (state.orderFilter !== 'all') {
+      setOrderFilter('all');
+    } else {
+      highlightOrder(id);
+    }
+  }
+
+  function highlightOrder(id) {
+    setTimeout(function () {
+      const card = $('.order-card[data-id="' + id + '"]');
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('flash');
+      setTimeout(function () { card.classList.remove('flash'); }, 2600);
+      state.highlightId = null;
+    }, 220);
+  }
+
+  /* ============================================================
+     ORDERS
+     ============================================================ */
+  const orderList = $('#orderList');
+
+  function setOrderFilter(status) {
+    state.orderFilter = status;
+    $$('#filterTabs button').forEach(b => b.classList.toggle('active', b.dataset.status === status));
+    loadOrders(true);
+  }
+  $$('#filterTabs button').forEach(b => {
+    b.addEventListener('click', () => setOrderFilter(b.dataset.status));
+  });
+
+  function ordersSkeleton() {
+    orderList.innerHTML = '<div class="skel skel-order"></div><div class="skel skel-order"></div><div class="skel skel-order"></div>';
+    $('#loadMoreWrap').innerHTML = '';
+  }
+
+  async function loadOrders(reset) {
+    if (!state.user) return;
+    if (reset) {
+      state.orderPage = 0;
+      state.orders = [];
+      ordersSkeleton();
+    }
+    if (!(await requireSession())) {
+      orderList.innerHTML = '';
+      $('#loadMoreWrap').innerHTML = '';
+      return;
+    }
+    const from = state.orderPage * PAGE_SIZE;
+    try {
+      let q = supabase.from('orders').select('*')
+        .order('created_at', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (state.orderFilter !== 'all') q = q.eq('status', state.orderFilter);
+
+      const { data, error } = await q;
+      if (error) throw error;
+
+      const rows = data || [];
+      state.orders = reset ? rows : state.orders.concat(rows);
+      state.orderHasMore = rows.length === PAGE_SIZE;
+      renderOrders();
+      if (state.highlightId) highlightOrder(state.highlightId);
+    } catch (err) {
+      orderList.innerHTML = '<div class="alert alert-crit"><span>⚠️</span><span>অর্ডার লোড করা যায়নি — ' +
+        esc(friendlyError(err)) + '</span></div>';
+      $('#loadMoreWrap').innerHTML = '';
+      console.error(err);
+      if (isAuthError(err)) { toast('সেশন মেয়াদ শেষ — আবার লগইন করুন', 'err'); forceLogout(); }
+    }
+  }
+
+  function statusOptions(current) {
+    const flow = { pending: ['pending', 'confirmed', 'delivered'], confirmed: ['confirmed', 'delivered'], delivered: [] };
+    return (flow[current] || []).map(function (s) {
+      return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + STATUS_BN[s] + '</option>';
+    }).join('');
+  }
+
+  function orderCardHtml(o) {
+    const isOpen = !!state.expanded[o.id];
+    const badge = '<span class="badge badge-' + esc(o.status) + '">' + (STATUS_DOT[o.status] || '') + ' ' +
+      (STATUS_BN[o.status] || o.status) + '</span>';
+    const statusCtrl = o.status === 'delivered'
+      ? '<span class="badge badge-delivered">🟢 ডেলিভারড</span>'
+      : '<select data-act="status" data-id="' + esc(o.id) + '" aria-label="স্ট্যাটাস পরিবর্তন">' + statusOptions(o.status) + '</select>';
+
+    return '<div class="order-card" data-id="' + esc(o.id) + '">' +
+      '<div class="order-top">' +
+        '<div class="order-line1">' +
+          '<span class="order-no">#' + bn(o.order_number) + '</span>' +
+          '<span class="order-name">' + esc(o.customer_name) + '</span>' +
+          '<span class="order-total">' + money(o.total) + '</span>' +
+          badge +
+        '</div>' +
+        '<div class="order-meta">' +
+          '<span>📱 ' + esc(o.customer_phone) + '</span>' +
+          '<span>📅 ' + fmtDateTime(o.created_at) + '</span>' +
+          '<span>📍 ' + esc(zoneBn(o.delivery_zone)) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="order-actions">' +
+        '<button class="btn btn-outline btn-sm" data-act="toggle" data-id="' + esc(o.id) + '">' +
+          (isOpen ? 'বিস্তারিত লুকান ▲' : 'বিস্তারিত দেখুন ▼') + '</button>' +
+        statusCtrl +
+        '<button class="icon-btn spacer" data-act="delete" data-id="' + esc(o.id) + '" title="ডিলিট" aria-label="অর্ডার ডিলিট">🗑</button>' +
+      '</div>' +
+      '<div class="order-detail' + (isOpen ? ' open' : '') + '" id="detail-' + esc(o.id) + '">' +
+        (isOpen ? orderDetailHtml(o) : '') +
+      '</div>' +
+    '</div>';
+  }
+
+  function orderDetailHtml(o) {
+    const items = Array.isArray(o.items) ? o.items : (function () {
+      try { return JSON.parse(o.items || '[]'); } catch (e) { return []; }
+    })();
+
+    const itemsHtml = items.length
+      ? items.map(function (it) {
+          const nm = it.name_bn || it.name_en || 'পণ্য';
+          const qty = Number(it.quantity) || 1;
+          const tot = it.total != null ? it.total : (Number(it.unit_price) || 0) * qty;
+          return '<div class="item-row"><span class="nm">' + esc(nm) + '</span>' +
+            '<span class="qt">×' + bn(qty) + '</span>' +
+            '<span class="pr">' + money(tot) + '</span></div>';
+        }).join('')
+      : '<div class="item-row"><span class="nm" style="color:var(--text-gray)">পণ্যের তথ্য পাওয়া যায়নি</span></div>';
+
+    const wa = waPhone(o.customer_phone);
+
+    return '<div class="detail-block">' +
+      '<div class="detail-h">গ্রাহকের তথ্য</div>' +
+      '<div class="kv"><span class="k">নাম:</span><span class="v">' + esc(o.customer_name) + '</span></div>' +
+      '<div class="kv"><span class="k">মোবাইল:</span><span class="v">' + esc(o.customer_phone) + '</span>' +
+        '<a class="mini-btn" href="tel:' + esc(o.customer_phone) + '">📞 কল</a>' +
+        '<a class="mini-btn wa" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">💬 WhatsApp</a></div>' +
+      (o.customer_email ? '<div class="kv"><span class="k">ইমেইল:</span><span class="v">' + esc(o.customer_email) + '</span></div>' : '') +
+      '<div class="kv"><span class="k">ঠিকানা:</span><span class="v">' + esc(o.customer_address) + '</span></div>' +
+      '<div class="kv"><span class="k">ডেলিভারি:</span><span class="v">' + esc(zoneBn(o.delivery_zone)) +
+        ' (' + money(o.delivery_charge) + ')</span></div>' +
+      (o.note ? '<div class="kv"><span class="k">নোট:</span><span class="v note">' + esc(o.note) + '</span></div>' : '') +
+    '</div>' +
+
+    '<div class="detail-block">' +
+      '<div class="detail-h">অর্ডারের পণ্য</div>' +
+      '<div class="items-box">' + itemsHtml + '</div>' +
+      '<div class="totals">' +
+        '<div class="row"><span>সাবটোটাল:</span><span>' + money(o.subtotal) + '</span></div>' +
+        '<div class="row"><span>ডেলিভারি চার্জ:</span><span>' + money(o.delivery_charge) + '</span></div>' +
+        '<div class="row grand"><span>সর্বমোট:</span><span>' + money(o.total) + '</span></div>' +
+      '</div>' +
+      '<button class="btn btn-green btn-block" style="margin-top:14px" data-act="wa-confirm" data-id="' + esc(o.id) + '">' +
+        '💬 WhatsApp এ কনফার্মেশন পাঠান</button>' +
+    '</div>';
+  }
+
+  function renderOrders() {
+    if (!state.orders.length) {
+      const label = state.orderFilter === 'all' ? '' : STATUS_BN[state.orderFilter] + ' ';
+      orderList.innerHTML = '<div class="empty"><div class="ic">📭</div>' +
+        '<div class="tx">কোনো ' + label + 'অর্ডার নেই</div>' +
+        '<div class="sub">নতুন অর্ডার এলে এখানে সাথে সাথে দেখা যাবে।</div></div>';
+      $('#loadMoreWrap').innerHTML = '';
+      return;
+    }
+
+    orderList.innerHTML = state.orders.map(orderCardHtml).join('');
+
+    $('#loadMoreWrap').innerHTML = state.orderHasMore
+      ? '<button class="btn btn-outline" id="loadMoreBtn">আরও অর্ডার দেখুন ↓</button>'
+      : '<div class="page-sub">সব অর্ডার দেখানো হয়েছে (' + num(state.orders.length) + 'টি)</div>';
+
+    const lm = $('#loadMoreBtn');
+    if (lm) lm.addEventListener('click', async function () {
+      lm.classList.add('loading');
+      lm.disabled = true;
+      state.orderPage += 1;
+      await loadOrders(false);
+    });
+  }
+
+  /* Delegated order actions */
+  orderList.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-act]');
+    if (!btn || btn.tagName === 'SELECT') return;
+    const id = btn.dataset.id;
+    const act = btn.dataset.act;
+    if (act === 'toggle') toggleDetail(id);
+    else if (act === 'delete') deleteOrder(id);
+    else if (act === 'wa-confirm') sendWaConfirmation(id);
+  });
+  orderList.addEventListener('change', function (e) {
+    const sel = e.target.closest('select[data-act="status"]');
+    if (!sel) return;
+    changeStatus(sel.dataset.id, sel.value, sel);
+  });
+
+  function toggleDetail(id) {
+    const o = state.orders.find(x => x.id === id);
+    if (!o) return;
+    const open = !state.expanded[id];
+    state.expanded[id] = open;
+    const box = document.getElementById('detail-' + id);
+    const btn = $('.order-card[data-id="' + id + '"] [data-act="toggle"]');
+    if (!box) return;
+    if (open) {
+      box.innerHTML = orderDetailHtml(o);
+      box.classList.add('open');
+      if (btn) btn.textContent = 'বিস্তারিত লুকান ▲';
+    } else {
+      box.classList.remove('open');
+      box.innerHTML = '';
+      if (btn) btn.textContent = 'বিস্তারিত দেখুন ▼';
+    }
+  }
+
+  async function changeStatus(id, newStatus, sel) {
+    const o = state.orders.find(x => x.id === id);
+    if (!o || o.status === newStatus) return;
+    if (!(await requireSession())) { if (sel) sel.value = o.status; return; }
+    const prev = o.status;
+    if (sel) sel.disabled = true;
+    try {
+      const { data: updated, error } = await supabase.from('orders').update({ status: newStatus }).eq('id', id).select('id');
+      if (error) throw error;
+      if (!updated || !updated.length) {
+        toast('আপডেট হয়নি — অনুমতি নেই', 'err');
+        if (sel) sel.value = prev;
+        return;
+      }
+      o.status = newStatus;
+      toast('অর্ডার #' + bn(o.order_number) + ' ' + STATUS_BN[newStatus] + ' হয়েছে ✅', 'ok');
+
+      if (state.orderFilter !== 'all' && state.orderFilter !== newStatus) {
+        state.orders = state.orders.filter(x => x.id !== id);
+      }
+      renderOrders();
+      await refreshCounts();
+      if (state.tab === 'dashboard') renderDashboard();
+    } catch (err) {
+      o.status = prev;
+      if (sel) sel.value = prev;
+      handleError(err, 'স্ট্যাটাস আপডেট হয়নি');
+    } finally {
+      if (sel) sel.disabled = false;
+    }
+  }
+
+  function sendWaConfirmation(id) {
+    const o = state.orders.find(x => x.id === id);
+    if (!o) return;
+    const items = Array.isArray(o.items) ? o.items : (function () {
+      try { return JSON.parse(o.items || '[]'); } catch (e) { return []; }
+    })();
+    const lines = items.map(function (it) {
+      const nm = it.name_bn || it.name_en || 'পণ্য';
+      const qty = Number(it.quantity) || 1;
+      const tot = it.total != null ? it.total : (Number(it.unit_price) || 0) * qty;
+      return '• ' + nm + ' ×' + qty + ' = ৳' + Math.round(Number(tot) || 0);
+    }).join('\n');
+
+    const msg =
+      '✅ অর্ডার কনফার্মড — আচার ওয়ালা\n\n' +
+      'প্রিয় ' + o.customer_name + ',\n' +
+      'আপনার অর্ডার #' + o.order_number + ' কনফার্ম হয়েছে!\n\n' +
+      'পণ্য:\n' + lines + '\n\n' +
+      'সর্বমোট: ৳' + Math.round(Number(o.total) || 0) + ' (ডেলিভারি সহ)\n' +
+      'পেমেন্ট: ক্যাশ অন ডেলিভারি\n\n' +
+      'ধন্যবাদ! 🥭\nআচার ওয়ালা';
+
+    window.open('https://wa.me/' + waPhone(o.customer_phone) + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  /* ============================================================
+     CSV
+     ============================================================ */
+  const CSV_HEADERS = ['order_number','customer_name','customer_phone','customer_email','customer_address',
+    'delivery_zone','delivery_charge','items','subtotal','total','status','note','created_at'];
+
+  function generateCSV(orders, fileName) {
+    const rows = orders.map(function (o) {
+      return CSV_HEADERS.map(function (h) {
+        let val = o[h];
+        if (h === 'items') val = JSON.stringify(val);
+        if (typeof val === 'string') val = '"' + val.replace(/"/g, '""') + '"';
+        return val != null ? val : '';
+      }).join(',');
+    });
+    const csv = '\uFEFF' + CSV_HEADERS.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || ('acharwala_orders_' + new Date().toISOString().slice(0, 10) + '.csv');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  /* ============================================================
+     DELETE ORDER (single)
+     ============================================================ */
+  async function deleteOrder(id) {
+    const o = state.orders.find(x => x.id === id);
+    if (!o) {
+      toast('অর্ডার পাওয়া যায়নি', 'err');
+      return;
+    }
+
+    /* Ask first, then check the session. The other way round a lapsed token
+       silently swallowed the click before the modal ever appeared. */
+    const ok = await confirmModal({
+      title: 'অর্ডার ডিলিট',
+      icon: '🗑',
+      msg: 'অর্ডার #' + bn(o.order_number) + ' ডিলিট করতে চান?',
+      sub: 'ডিলিটের আগে এই অর্ডারের CSV ফাইল অটো ডাউনলোড হবে। ডিলিট করলে আর ফেরত আনা যাবে না।',
+      yes: 'CSV ডাউনলোড ও ডিলিট করুন'
+    });
+    if (!ok) return;
+
+    if (!(await requireSession())) return;
+
+    try {
+      generateCSV([o], 'acharwala_order_' + o.order_number + '_' + new Date().toISOString().slice(0, 10) + '.csv');
+      /* .select() makes PostgREST return the rows it actually removed. Without
+         it an RLS policy that blocks DELETE comes back as a clean success and
+         the order silently reappears on the next refresh. */
+      const { data: gone, error } = await supabase
+        .from('orders').delete().eq('id', id).select('id');
+      if (error) throw error;
+      if (!gone || !gone.length) {
+        toast('ডিলিট হয়নি — এই অর্ডার মোছার অনুমতি নেই', 'err');
+        return;
+      }
+
+      state.orders = state.orders.filter(x => x.id !== id);
+      delete state.expanded[id];
+      renderOrders();
+      toast('অর্ডার #' + bn(o.order_number) + ' ডিলিট হয়েছে', 'ok');
+      await refreshCounts();
+      if (state.tab === 'dashboard') renderDashboard();
+    } catch (err) {
+      handleError(err, 'ডিলিট করা যায়নি');
+    }
+  }
+
+  /* ============================================================
+     BULK DELETE
+     ============================================================ */
+  const bulkDate = $('#bulkDate');
+  const bulkCountBox = $('#bulkCount');
+  const bulkDeleteBtn = $('#bulkDeleteBtn');
+
+  /* A date input always reports YYYY-MM-DD. Treat that day's local 00:00 as the
+     cutoff so "before this date" means the whole preceding calendar day, and so
+     it matches the preset chips below (which also use local midnight). */
+  function bulkCutoffISO() {
+    const val = (bulkDate.value || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return null;
+    const d = new Date(val + 'T00:00:00');
+    return d.toISOString();
+  }
+
+  function resetBulk() {
+    state.bulk = { date: null, count: 0, label: '' };
+    bulkCountBox.classList.remove('show');
+    bulkCountBox.textContent = '';
+    bulkDeleteBtn.disabled = true;
+  }
+
+  function clearPresets() {
+    $$('.preset-btn').forEach(function (b) { b.classList.remove('active'); });
+  }
+
+  /* Counts every order strictly older than cutoffISO and parks the result on
+     state.bulk so the delete button and the confirm text agree with the badge. */
+  async function countBulkOrders(cutoffISO, label) {
+    if (!cutoffISO) { resetBulk(); return; }
+
+    bulkCountBox.classList.add('show');
+    bulkCountBox.textContent = 'গণনা করা হচ্ছে...';
+    bulkDeleteBtn.disabled = true;
+
+    if (!(await requireSession())) { resetBulk(); return; }
+
+    try {
+      const { count, error } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .lt('created_at', cutoffISO);
+      if (error) throw error;
+
+      const n = count || 0;
+      state.bulk = { date: cutoffISO, count: n, label: label || '' };
+      bulkCountBox.textContent = n
+        ? 'অর্ডার সংখ্যা: ' + num(n) + 'টি পাওয়া গেছে'
+        : 'এই সময়ের আগে কোনো অর্ডার নেই (০টি)';
+      bulkDeleteBtn.disabled = n === 0;
+    } catch (err) {
+      state.bulk = { date: null, count: 0, label: '' };
+      bulkCountBox.textContent = 'গণনা করা যায়নি — ' + friendlyError(err);
+      bulkDeleteBtn.disabled = true;
+      console.error('bulk count error', err);
+    }
+  }
+
+  bulkDate.addEventListener('change', function () {
+    clearPresets();
+    const iso = bulkCutoffISO();
+    if (!iso) { resetBulk(); return; }
+    countBulkOrders(iso, bulkDate.value + ' তারিখের আগের');
+  });
+
+  /* Quick-pick chips: "শেষ ৩ দিন" keeps the last 3 days and targets everything
+     older than that. "সব অর্ডার" uses a far-future cutoff so nothing escapes. */
+  $$('.preset-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const days = btn.dataset.days;
+      clearPresets();
+      btn.classList.add('active');
+
+      if (days === 'all') {
+        const future = new Date();
+        future.setFullYear(future.getFullYear() + 1);
+        bulkDate.value = '';
+        countBulkOrders(future.toISOString(), '');
+        return;
+      }
+
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - parseInt(days, 10));
+      cutoff.setHours(0, 0, 0, 0);
+      bulkDate.value = fmtDateInput(cutoff);
+      countBulkOrders(cutoff.toISOString(), bn(days) + ' দিনের চেয়ে পুরনো');
+    });
+  });
+
+  /* toISOString() would shift the day backwards for any UTC+ timezone. */
+  function fmtDateInput(d) {
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  $('#bulkCancelBtn').addEventListener('click', function () {
+    bulkDate.value = '';
+    clearPresets();
+    resetBulk();
+  });
+
+  bulkDeleteBtn.addEventListener('click', async function () {
+    const iso = state.bulk.date;
+    if (!iso || !state.bulk.count) {
+      toast('আগে তারিখ বা দিন নির্বাচন করুন', 'err');
+      return;
+    }
+
+    const ok = await confirmModal({
+      title: 'পুরনো অর্ডার ডিলিট',
+      icon: '📦',
+      msg: num(state.bulk.count) + 'টি অর্ডার স্থায়ীভাবে ডিলিট হবে।',
+      sub: (state.bulk.label ? state.bulk.label + ' সব অর্ডার ডিলিট হবে। ' : '') +
+        'ডিলিটের আগে CSV ফাইল অটো ডাউনলোড হবে। ডিলিট করা অর্ডার আর ফেরত আনা যাবে না।',
+      yes: 'CSV ডাউনলোড ও ডিলিট করুন'
+    });
+    if (!ok) return;
+
+    if (!(await requireSession())) return;
+
+    bulkDeleteBtn.disabled = true;
+    bulkDeleteBtn.classList.add('loading');
+    try {
+      const { data, error } = await supabase.from('orders').select('*')
+        .lt('created_at', iso)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+
+      const rows = data || [];
+      if (!rows.length) {
+        toast('ডিলিট করার মতো কোনো অর্ডার নেই', 'err');
+        resetBulk();
+        clearPresets();
+        return;
+      }
+
+      generateCSV(rows, 'acharwala_orders_bulk_' + new Date().toISOString().slice(0, 10) + '.csv');
+
+      const del = await supabase.from('orders').delete().lt('created_at', iso).select('id');
+      if (del.error) throw del.error;
+
+      const removed = (del.data || []).length;
+      if (!removed) {
+        toast('ডিলিট হয়নি — অর্ডার মোছার অনুমতি নেই', 'err');
+        return;
+      }
+
+      toast(num(removed) + 'টি অর্ডার ডিলিট হয়েছে। CSV ফাইল ডাউনলোড হয়েছে। ✅', 'ok');
+      bulkDate.value = '';
+      clearPresets();
+      resetBulk();
+
+      await refreshCounts();
+      await loadOrders(true);
+      renderDashboard();
+    } catch (err) {
+      handleError(err, 'বাল্ক ডিলিট ব্যর্থ');
+    } finally {
+      bulkDeleteBtn.classList.remove('loading');
+      bulkDeleteBtn.disabled = !state.bulk.count;
+    }
+  });
+
+  /* ============================================================
+     PRODUCTS
+     ============================================================ */
+  const productGrid = $('#productGrid');
+
+  async function loadProducts() {
+    /* No session guard here on purpose: SELECT on products is public, so the catalogue still paints even if the token has lapsed. A genuine auth failure is caught below and routed through forceLogout(). */
+    productGrid.innerHTML = '<div class="skel skel-prod"></div><div class="skel skel-prod"></div>' +
+      '<div class="skel skel-prod"></div><div class="skel skel-prod"></div>';
+    $('#productEmpty').innerHTML = '';
+    try {
+      let res = await supabase.from('products').select('*')
+        .order('sort_order', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: true });
+
+      // The sort_order column is optional — if the table predates it, fall
+      // back to ordering by created_at only instead of failing the whole tab.
+      if (res.error && isMissingSortOrder(res.error)) {
+        state.hasSortOrder = false;
+        console.warn('products.sort_order missing — falling back to created_at ordering');
+        res = await supabase.from('products').select('*')
+          .order('created_at', { ascending: false });
+      }
+      if (res.error) throw res.error;
+
+      state.products = res.data || [];
+      renderCategoryOptions();
+      renderProducts();
+    } catch (err) {
+      productGrid.innerHTML = '';
+      $('#productEmpty').innerHTML = '<div class="alert alert-crit"><span>⚠️</span><span>পণ্য লোড করা যায়নি — ' +
+        esc(friendlyError(err)) + '</span></div>';
+      console.error(err);
+      if (isAuthError(err)) { toast('সেশন মেয়াদ শেষ — আবার লগইন করুন', 'err'); forceLogout(); }
+    }
+  }
+
+  function uniqueCategories() {
+    const seen = [];
+    state.products.forEach(function (p) {
+      if (p.category_bn && seen.indexOf(p.category_bn) === -1) seen.push(p.category_bn);
+    });
+    return seen;
+  }
+
+  function renderCategoryOptions() {
+    const cats = uniqueCategories();
+    const sel = $('#catFilter');
+    const cur = state.catFilter;
+    sel.innerHTML = '<option value="all">সব ক্যাটাগরি</option>' +
+      cats.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+    sel.value = cats.indexOf(cur) !== -1 ? cur : 'all';
+    state.catFilter = sel.value;
+
+    $('#catList').innerHTML = cats.map(c => '<option value="' + esc(c) + '"></option>').join('');
+  }
+
+  $('#catFilter').addEventListener('change', function () {
+    state.catFilter = this.value;
+    renderProducts();
+  });
+
+  function discountPct(p) {
+    if (p.discount_price == null || Number(p.discount_price) >= Number(p.original_price)) return 0;
+    return Math.round(((p.original_price - p.discount_price) / p.original_price) * 100);
+  }
+
+  function renderProducts() {
+    const list = state.catFilter === 'all'
+      ? state.products
+      : state.products.filter(p => p.category_bn === state.catFilter);
+
+    $('#prodCountText').textContent = num(state.products.length) + 'টি পণ্য • ' +
+      num(state.products.filter(p => p.is_available).length) + 'টি ওয়েবসাইটে দেখাচ্ছে';
+
+    if (!list.length) {
+      productGrid.innerHTML = '';
+      $('#productEmpty').innerHTML = '<div class="empty"><div class="ic">🏷</div>' +
+        '<div class="tx">কোনো পণ্য নেই</div>' +
+        '<div class="sub">উপরের "নতুন পণ্য যোগ করুন" বাটনে চাপ দিয়ে পণ্য যোগ করুন।</div></div>';
+      return;
+    }
+    $('#productEmpty').innerHTML = '';
+
+    productGrid.innerHTML = list.map(function (p) {
+      const pct = discountPct(p);
+      const img = p.image_url
+        ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name_bn) + '" loading="lazy">'
+        : '<div class="ph">🥭</div>';
+      const price = pct > 0
+        ? '<span class="old">' + money(p.original_price) + '</span><span class="now">' + money(p.discount_price) + '</span>'
+        : '<span class="now">' + money(p.original_price) + '</span>';
+
+      return '<div class="prod-card' + (p.is_available ? '' : ' off') + '" data-id="' + esc(p.id) + '">' +
+        '<div class="prod-img">' + img +
+          (p.is_available ? '' : '<span class="off-tag">লুকানো</span>') +
+          (pct > 0 ? '<span class="disc-tag">' + bn(pct) + '% ছাড়</span>' : '') +
+        '</div>' +
+        '<div class="prod-body">' +
+          '<div class="prod-name">' + esc(p.name_bn) + '</div>' +
+          '<div class="prod-cat">ক্যাটাগরি: ' + esc(p.category_bn || '—') + '</div>' +
+          '<div class="prod-price">' + price + '</div>' +
+        '</div>' +
+        '<div class="prod-foot">' +
+          '<label class="toggle">' +
+            '<input type="checkbox" data-act="toggle-avail" data-id="' + esc(p.id) + '"' + (p.is_available ? ' checked' : '') + '>' +
+            '<span class="track"></span>' +
+            '<span class="tl">' + (p.is_available ? 'দেখাচ্ছে' : 'লুকানো') + '</span>' +
+          '</label>' +
+          '<div class="prod-btns">' +
+            '<button class="btn btn-outline btn-sm" data-act="edit" data-id="' + esc(p.id) + '">✏️ এডিট</button>' +
+            '<button class="btn btn-danger btn-sm" data-act="del-prod" data-id="' + esc(p.id) + '">🗑 ডিলিট</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  productGrid.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    if (btn.dataset.act === 'edit') openProductModal(btn.dataset.id);
+    else if (btn.dataset.act === 'del-prod') deleteProduct(btn.dataset.id);
+  });
+  productGrid.addEventListener('change', function (e) {
+    const cb = e.target.closest('input[data-act="toggle-avail"]');
+    if (cb) toggleAvailability(cb.dataset.id, cb);
+  });
+
+  async function toggleAvailability(id, cb) {
+    const p = state.products.find(x => x.id === id);
+    if (!p) return;
+    const next = cb.checked;
+    if (!(await requireSession())) { cb.checked = !next; return; }
+    cb.disabled = true;
+    try {
+      const { data: updated, error } = await supabase.from('products').update({ is_available: next }).eq('id', id).select('id');
+      if (error) throw error;
+      if (!updated || !updated.length) {
+        toast('আপডেট হয়নি — অনুমতি নেই', 'err');
+        cb.checked = !next;
+        return;
+      }
+      p.is_available = next;
+      renderProducts();
+      toast(next ? 'পণ্য ওয়েবসাইটে দেখানো হচ্ছে' : 'পণ্য ওয়েবসাইট থেকে লুকানো হয়েছে', 'ok');
+    } catch (err) {
+      cb.checked = !next;
+      handleError(err, 'আপডেট হয়নি');
+    } finally {
+      cb.disabled = false;
+    }
+  }
+
+  /* ---------------- Storage path helper ---------------- */
+  function storagePathFromUrl(url) {
+    if (!url) return null;
+    const marker = '/object/public/' + BUCKET + '/';
+    const i = url.indexOf(marker);
+    if (i === -1) return null;
+    let path = url.slice(i + marker.length);
+    const q = path.indexOf('?');
+    if (q !== -1) path = path.slice(0, q);
+    try { return decodeURIComponent(path); } catch (e) { return path; }
+  }
+
+  async function deleteStorageImage(url) {
+    const path = storagePathFromUrl(url);
+    if (!path) return;
+    try {
+      const { error } = await supabase.storage.from(BUCKET).remove([path]);
+      if (error) console.warn('image delete failed', error);
+    } catch (err) {
+      console.warn('image delete failed', err);
+    }
+  }
+
+  async function deleteProduct(id) {
+    const p = state.products.find(x => x.id === id);
+    if (!p) return;
+    const ok = await confirmModal({
+      title: 'পণ্য ডিলিট',
+      icon: '🗑',
+      msg: '"' + p.name_bn + '" স্থায়ীভাবে ডিলিট করতে চান?',
+      sub: 'এটি আর ফেরত আনা যাবে না। ছবিও স্টোরেজ থেকে মুছে যাবে। শুধু লুকাতে চাইলে টগল বন্ধ করুন।',
+      yes: 'ডিলিট করুন'
+    });
+    if (!ok) return;
+    if (!(await requireSession())) return;
+
+    try {
+      /* Row first, image second — if the delete is blocked by RLS the image
+         stays intact instead of leaving an orphaned product with no picture. */
+      const { data: gone, error } = await supabase.from('products').delete().eq('id', id).select('id');
+      if (error) throw error;
+      if (!gone || !gone.length) {
+        toast('ডিলিট হয়নি — এই পণ্য মোছার অনুমতি নেই', 'err');
+        return;
+      }
+      if (p.image_url) await deleteStorageImage(p.image_url);
+      state.products = state.products.filter(x => x.id !== id);
+      renderCategoryOptions();
+      renderProducts();
+      toast('পণ্যটি ডিলিট হয়েছে', 'ok');
+    } catch (err) {
+      handleError(err, 'পণ্য ডিলিট হয়নি');
+    }
+  }
+
+  /* ============================================================
+     PRODUCT MODAL
+     ============================================================ */
+  const productOverlay = $('#productOverlay');
+  const imgInput = $('#pImage');
+  const imgPreview = $('#imgPreview');
+  const imgPreviewEl = $('#imgPreviewEl');
+
+  function clearProductErrors() {
+    ['errNameBn','errCatBn','errPrice','errDiscount','errImage'].forEach(function (id) {
+      const el = $('#' + id);
+      el.textContent = '';
+      el.classList.remove('show');
+    });
+    ['pNameBn','pCatBn','pPrice','pDiscount'].forEach(function (id) {
+      $('#' + id).classList.remove('invalid');
+    });
+  }
+  function fieldError(errId, inputId, msg) {
+    const el = $('#' + errId);
+    el.textContent = msg;
+    el.classList.add('show');
+    if (inputId) $('#' + inputId).classList.add('invalid');
+  }
+
+  function openProductModal(id) {
+    clearProductErrors();
+    state.pickedImage = null;
+    state.removeExistingImage = false;
+    imgInput.value = '';
+
+    const p = id ? state.products.find(x => x.id === id) : null;
+    state.editingProduct = p || null;
+
+    $('#prodModalTitle').textContent = p ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন';
+    $('#pNameBn').value = p ? (p.name_bn || '') : '';
+    $('#pNameEn').value = p ? (p.name_en || '') : '';
+    $('#pCatBn').value = p ? (p.category_bn || '') : '';
+    $('#pCatEn').value = p ? (p.category_en || '') : '';
+    $('#pPrice').value = p ? (p.original_price != null ? p.original_price : '') : '';
+    $('#pDiscount').value = p && p.discount_price != null ? p.discount_price : '';
+    $('#pDescBn').value = p ? (p.description_bn || '') : '';
+    $('#pDescEn').value = p ? (p.description_en || '') : '';
+    $('#pSort').value = p ? (p.sort_order != null ? p.sort_order : 0) : (state.products.length);
+    // Hide the ordering field entirely when the column is not in the table.
+    const sortField = $('#pSort').closest('.field');
+    if (sortField) sortField.style.display = state.hasSortOrder ? '' : 'none';
+    $('#pAvailable').checked = p ? !!p.is_available : true;
+
+    if (p && p.image_url) {
+      imgPreviewEl.src = p.image_url;
+      imgPreview.classList.add('show');
+    } else {
+      imgPreviewEl.removeAttribute('src');
+      imgPreview.classList.remove('show');
+    }
+
+    openOverlay(productOverlay);
+    setTimeout(() => $('#pNameBn').focus(), 200);
+  }
+
+  $('#addProductBtn').addEventListener('click', function () { openProductModal(null); });
+
+  /* Auto-fill category_en when a known category is chosen */
+  $('#pCatBn').addEventListener('change', function () {
+    const val = this.value.trim();
+    if (!val) return;
+    const match = state.products.find(p => p.category_bn === val && p.category_en);
+    if (match && !$('#pCatEn').value.trim()) $('#pCatEn').value = match.category_en;
+  });
+
+  /* Image picking */
+  $('#uploadZone').addEventListener('click', function () { imgInput.click(); });
+  imgInput.addEventListener('change', function () {
+    const f = this.files && this.files[0];
+    const errEl = $('#errImage');
+    errEl.classList.remove('show');
+    if (!f) return;
+
+    const okType = ['image/jpeg', 'image/jpg', 'image/png'].indexOf(f.type) !== -1;
+    if (!okType) {
+      fieldError('errImage', null, 'শুধু JPG বা PNG ছবি আপলোড করা যাবে।');
+      this.value = '';
+      return;
+    }
+    if (f.size > 2 * 1024 * 1024) {
+      fieldError('errImage', null, 'ছবির সাইজ ২ MB এর বেশি হতে পারবে না।');
+      this.value = '';
+      return;
+    }
+    state.pickedImage = f;
+    state.removeExistingImage = false;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      imgPreviewEl.src = ev.target.result;
+      imgPreview.classList.add('show');
+    };
+    reader.readAsDataURL(f);
+  });
+
+  $('#removeImgBtn').addEventListener('click', function () {
+    state.pickedImage = null;
+    imgInput.value = '';
+    imgPreviewEl.removeAttribute('src');
+    imgPreview.classList.remove('show');
+    if (state.editingProduct && state.editingProduct.image_url) state.removeExistingImage = true;
+  });
+
+  function validateProduct() {
+    clearProductErrors();
+    let ok = true;
+    const nameBn = $('#pNameBn').value.trim();
+    const catBn = $('#pCatBn').value.trim();
+    const price = $('#pPrice').value.trim();
+    const disc = $('#pDiscount').value.trim();
+
+    if (nameBn.length < 2) { fieldError('errNameBn', 'pNameBn', 'পণ্যের বাংলা নাম কমপক্ষে ২ অক্ষরের দিন।'); ok = false; }
+    if (!catBn) { fieldError('errCatBn', 'pCatBn', 'ক্যাটাগরি দিন।'); ok = false; }
+
+    const pv = Number(price);
+    if (!price || isNaN(pv) || pv <= 0) { fieldError('errPrice', 'pPrice', 'সঠিক মূল দাম দিন।'); ok = false; }
+
+    if (disc !== '') {
+      const dv = Number(disc);
+      if (isNaN(dv) || dv <= 0) { fieldError('errDiscount', 'pDiscount', 'সঠিক ডিসকাউন্ট দাম দিন অথবা খালি রাখুন।'); ok = false; }
+      else if (!isNaN(pv) && dv >= pv) { fieldError('errDiscount', 'pDiscount', 'ডিসকাউন্ট দাম মূল দামের চেয়ে কম হতে হবে।'); ok = false; }
+    }
+    return ok;
+  }
+
+  async function uploadImage(file) {
+    if (!file) return null;
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const uuid = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : 'p' + Date.now() + Math.random().toString(16).slice(2, 8);
+    const path = uuid + '.' + ext;
+
+    const up = await supabase.storage.from(BUCKET).upload(path, file, {
+      contentType: file.type, cacheControl: '3600', upsert: false
+    });
+    if (up.error) {
+      const m = String(up.error.message || '');
+      if (/Bucket not found/i.test(m) || (/bucket/i.test(m) && /not.*(found|exist)/i.test(m))) {
+        throw new Error(BUCKET_MISSING_BN);
+      }
+      throw up.error;
+    }
+
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  $('#saveProductBtn').addEventListener('click', async function () {
+    if (!validateProduct()) return;
+    if (!(await requireSession())) return;
+    const btn = this;
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    const editing = state.editingProduct;
+    const discRaw = $('#pDiscount').value.trim();
+
+    const payload = {
+      name_bn: $('#pNameBn').value.trim(),
+      name_en: $('#pNameEn').value.trim() || null,
+      category_bn: $('#pCatBn').value.trim(),
+      category_en: $('#pCatEn').value.trim() || null,
+      original_price: Number($('#pPrice').value),
+      discount_price: discRaw === '' ? null : Number(discRaw),
+      description_bn: $('#pDescBn').value.trim() || null,
+      description_en: $('#pDescEn').value.trim() || null,
+      is_available: $('#pAvailable').checked
+    };
+
+    // sort_order only goes in when the column exists and the field was filled;
+    // an older table without the column would otherwise reject the whole row.
+    const sortRaw = $('#pSort').value.trim();
+    if (state.hasSortOrder && sortRaw !== '') payload.sort_order = Number(sortRaw) || 0;
+
+    try {
+      let oldImageToDelete = null;
+
+      // Only touch storage when a NEW file was picked. Saving a product with
+      // no image must never hit the bucket.
+      if (state.pickedImage) {
+        let uploadedUrl = null;
+        try {
+          uploadedUrl = await uploadImage(state.pickedImage);
+        } catch (uploadErr) {
+          // A missing bucket — or any other upload failure — warns but never
+          // blocks the save. The product goes in without the picture and the
+          // admin can add it later once the bucket exists.
+          console.error('image upload failed', uploadErr);
+          toast('⚠️ ছবি আপলোড হয়নি — পণ্যটি ছবি ছাড়াই সেভ হচ্ছে। ' + friendlyError(uploadErr), 'err');
+        }
+        if (uploadedUrl) {
+          payload.image_url = uploadedUrl;
+          if (editing && editing.image_url) oldImageToDelete = editing.image_url;
+        } else if (!editing) {
+          payload.image_url = null;
+        }
+        // On a failed upload while editing, image_url is left out of the
+        // payload entirely so the product keeps the picture it already had.
+      } else if (state.removeExistingImage) {
+        payload.image_url = null;
+        if (editing && editing.image_url) oldImageToDelete = editing.image_url;
+      }
+
+      const write = function () {
+        return editing
+          ? supabase.from('products').update(payload).eq('id', editing.id).select()
+          : supabase.from('products').insert(payload).select();
+      };
+
+      let res = await write();
+      // Same defensive retry as loadProducts: drop sort_order and try once more.
+      if (res.error && isMissingSortOrder(res.error)) {
+        state.hasSortOrder = false;
+        delete payload.sort_order;
+        console.warn('products.sort_order missing — saving without it');
+        res = await write();
+      }
+      if (res.error) throw res.error;
+
+      if (oldImageToDelete) await deleteStorageImage(oldImageToDelete);
+
+      const saved = (res.data && res.data[0]) || null;
+      if (saved) {
+        if (editing) {
+          const i = state.products.findIndex(x => x.id === editing.id);
+          if (i !== -1) state.products[i] = saved; else state.products.push(saved);
+        } else {
+          state.products.push(saved);
+        }
+        state.products.sort(function (a, b) {
+          if (!state.hasSortOrder) {
+            // Mirrors the created_at-descending fallback used by loadProducts.
+            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+          }
+          return (a.sort_order || 0) - (b.sort_order || 0) ||
+            new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        });
+      } else {
+        await loadProducts();
+      }
+
+      renderCategoryOptions();
+      renderProducts();
+      closeOverlay(productOverlay);
+      toast(editing ? 'পণ্য আপডেট হয়েছে ✅' : 'নতুন পণ্য যোগ হয়েছে ✅', 'ok');
+    } catch (err) {
+      handleError(err, 'পণ্য সেভ হয়নি');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+
+  /* ============================================================
+     OVERLAY / CONFIRM MODAL
+     ============================================================ */
+  let confirmResolve = null;
+
+  function openOverlay(el) {
+    el.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  /* Every close path — backdrop, ✕, Escape, [data-close] — has to settle a
+     pending confirmModal() promise, otherwise the awaiting caller hangs and
+     the next delete looks like "nothing happened". */
+  function closeOverlay(el) {
+    if (!el) return;
+    el.classList.remove('show');
+    if (!$$('.overlay.show').length) document.body.style.overflow = '';
+    if (el.id === 'confirmOverlay' && confirmResolve) {
+      const r = confirmResolve;
+      confirmResolve = null;
+      r(false);
+    }
+  }
+  $$('[data-close]').forEach(function (b) {
+    b.addEventListener('click', function () { closeOverlay($('#' + b.dataset.close)); });
+  });
+  $$('.overlay').forEach(function (ov) {
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeOverlay(ov); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    const open = $$('.overlay.show');
+    if (open.length) closeOverlay(open[open.length - 1]);
+  });
+
+  const confirmOverlay = $('#confirmOverlay');
+
+  function confirmModal(opts) {
+    $('#confirmTitle').textContent = opts.title || 'নিশ্চিত করুন';
+    $('#confirmIcon').textContent = opts.icon || '⚠️';
+    $('#confirmMsg').textContent = opts.msg || '';
+    $('#confirmSub').textContent = opts.sub || '';
+    const yes = $('#confirmYes');
+    yes.textContent = opts.yes || 'ডিলিট করুন';
+    yes.className = 'btn ' + (opts.danger === false ? 'btn-primary' : 'btn-danger');
+    openOverlay(confirmOverlay);
+    return new Promise(function (resolve) { confirmResolve = resolve; });
+  }
+  function settleConfirm(val) {
+    const r = confirmResolve;
+    confirmResolve = null;
+    closeOverlay(confirmOverlay);
+    if (r) r(val);
+  }
+  $('#confirmYes').addEventListener('click', function () { settleConfirm(true); });
+  $('#confirmNo').addEventListener('click', function () { settleConfirm(false); });
+  $('#confirmX').addEventListener('click', function () { settleConfirm(false); });
+  confirmOverlay.addEventListener('click', function (e) { if (e.target === confirmOverlay) settleConfirm(false); });
+
+  /* ============================================================
+     SETTINGS
+     ============================================================ */
+  async function loadSettings() {
+    try {
+      const { data, error } = await supabase.from('settings').select('key,value');
+      if (error) throw error;
+      if (!data || !data.length) console.warn('settings table returned no rows');
+      (data || []).forEach(function (row) {
+        const v = Number(row.value);
+        if (row.key === 'delivery_inside_khulna') state.settings.delivery_inside_khulna = isNaN(v) ? row.value : v;
+        if (row.key === 'delivery_outside_khulna') state.settings.delivery_outside_khulna = isNaN(v) ? row.value : v;
+      });
+    } catch (err) {
+      console.warn('settings load failed', err);
+    }
+    $('#setInside').value = state.settings.delivery_inside_khulna;
+    $('#setOutside').value = state.settings.delivery_outside_khulna;
+  }
+
+  $('#saveDeliveryBtn').addEventListener('click', async function () {
+    const inside = Number($('#setInside').value);
+    const outside = Number($('#setOutside').value);
+    if (isNaN(inside) || inside < 0 || isNaN(outside) || outside < 0) {
+      toast('সঠিক ডেলিভারি চার্জ দিন', 'err');
+      return;
+    }
+    if (!(await requireSession())) return;
+    const btn = this;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    try {
+      const r1 = await supabase.from('settings').upsert({ key: 'delivery_inside_khulna', value: String(inside) });
+      if (r1.error) throw r1.error;
+      const r2 = await supabase.from('settings').upsert({ key: 'delivery_outside_khulna', value: String(outside) });
+      if (r2.error) throw r2.error;
+
+      state.settings.delivery_inside_khulna = inside;
+      state.settings.delivery_outside_khulna = outside;
+      toast('ডেলিভারি চার্জ আপডেট হয়েছে ✅', 'ok');
+    } catch (err) {
+      handleError(err, 'আপডেট হয়নি');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+
+  /* Password change */
+  $('#pwToggleBtn').addEventListener('click', function () {
+    $('#pwWrap').classList.remove('hidden');
+    this.classList.add('hidden');
+    $('#newPass').focus();
+  });
+  $('#pwCancelBtn').addEventListener('click', function () {
+    $('#pwWrap').classList.add('hidden');
+    $('#pwToggleBtn').classList.remove('hidden');
+    $('#newPass').value = '';
+    $('#newPass2').value = '';
+    $('#pwErr').classList.remove('show');
+  });
+  $('#pwSaveBtn').addEventListener('click', async function () {
+    const p1 = $('#newPass').value;
+    const p2 = $('#newPass2').value;
+    const errEl = $('#pwErr');
+    errEl.classList.remove('show');
+
+    if (p1.length < 6) {
+      errEl.textContent = 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+      errEl.classList.add('show');
+      return;
+    }
+    if (p1 !== p2) {
+      errEl.textContent = 'দুটি পাসওয়ার্ড মিলছে না।';
+      errEl.classList.add('show');
+      return;
+    }
+    const btn = this;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: p1 });
+      if (error) throw error;
+      $('#pwCancelBtn').click();
+      toast('পাসওয়ার্ড পরিবর্তন হয়েছে ✅', 'ok');
+    } catch (err) {
+      errEl.textContent = friendlyError(err);
+      errEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+
+  /* ============================================================
+     FIREBASE / NOTIFICATIONS
+     ============================================================ */
+  let messaging = null;
+
+  function initFirebase() {
+    try {
+      if (!window.firebase || !firebase.messaging) return;
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      if (!firebase.messaging.isSupported || firebase.messaging.isSupported()) {
+        messaging = firebase.messaging();
+        messaging.onMessage(function (payload) {
+          const n = (payload && payload.notification) || {};
+          showNotification(n.title || '🛒 নতুন অর্ডার!', n.body || '');
+        });
+      }
+    } catch (err) {
+      console.warn('firebase init failed', err);
+    }
+    registerServiceWorker();
+  }
+
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return null;
+    try {
+      return await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    } catch (err) {
+      console.warn('service worker registration failed', err);
+      return null;
+    }
+  }
+
+  function refreshFcmUi() {
+    const pill = $('#fcmStatus');
+    const permBtn = $('#permBtn');
+    const note = $('#fcmNote');
+    const supported = 'Notification' in window;
+
+    if (!supported) {
+      pill.className = 'status-pill off';
+      pill.textContent = '❌ এই ডিভাইসে সাপোর্ট নেই';
+      permBtn.classList.add('hidden');
+      note.textContent = 'এই ব্রাউজারে নোটিফিকেশন সাপোর্ট করে না।';
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      pill.className = 'status-pill on';
+      pill.textContent = '✅ সক্রিয়';
+      permBtn.classList.add('hidden');
+      note.textContent = state.fcmToken
+        ? 'FCM টোকেন সেভ করা আছে। নতুন অর্ডার এলে সাথে সাথে নোটিফিকেশন পাবেন।'
+        : 'নোটিফিকেশন চালু আছে। অ্যাপ খোলা থাকলে নতুন অর্ডারের নোটিফিকেশন পাবেন।';
+    } else if (Notification.permission === 'denied') {
+      pill.className = 'status-pill off';
+      pill.textContent = '❌ নিষ্ক্রিয় (ব্লক করা)';
+      permBtn.classList.add('hidden');
+      note.textContent = 'ব্রাউজার/অ্যাপ সেটিংস থেকে নোটিফিকেশন অনুমতি চালু করুন।';
+    } else {
+      pill.className = 'status-pill off';
+      pill.textContent = '❌ নিষ্ক্রিয়';
+      permBtn.classList.remove('hidden');
+      note.textContent = 'নোটিফিকেশন পারমিশন দিলে নতুন অর্ডার এলে সাথে সাথে জানতে পারবেন।';
+    }
+  }
+
+  async function requestPermissionAndToken() {
+    if (!('Notification' in window)) {
+      toast('এই ডিভাইসে নোটিফিকেশন সাপোর্ট করে না', 'err');
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast('নোটিফিকেশন পারমিশন দেওয়া হয়নি', 'err');
+        refreshFcmUi();
+        return;
+      }
+      toast('নোটিফিকেশন চালু হয়েছে ✅', 'ok');
+
+      if (messaging) {
+        try {
+          const reg = await registerServiceWorker();
+          const opts = { vapidKey: VAPID_KEY };
+          if (reg) opts.serviceWorkerRegistration = reg;
+          const token = await messaging.getToken(opts);
+          if (token) {
+            state.fcmToken = token;
+            localStorage.setItem('fcm_token', token);
+          }
+        } catch (err) {
+          console.warn('FCM token failed', err);
+        }
+      }
+      refreshFcmUi();
+    } catch (err) {
+      handleError(err, 'পারমিশন নেওয়া যায়নি');
+    }
+  }
+  $('#permBtn').addEventListener('click', requestPermissionAndToken);
+
+  $('#testNotifBtn').addEventListener('click', async function () {
+    if (!('Notification' in window)) {
+      toast('এই ডিভাইসে নোটিফিকেশন সাপোর্ট করে না', 'err');
+      return;
+    }
+    if (Notification.permission !== 'granted') {
+      await requestPermissionAndToken();
+      if (Notification.permission !== 'granted') return;
+    }
+    showNotification('🛒 টেস্ট নোটিফিকেশন', 'আচার ওয়ালা অ্যাডমিন প্যানেল ঠিকভাবে কাজ করছে ✅');
+    toast('টেস্ট নোটিফিকেশন পাঠানো হয়েছে', 'ok');
+  });
+
+  function showNotification(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const opts = { body: body, icon: ICON, badge: ICON, vibrate: [200, 100, 200], tag: 'acharwala-' + Date.now() };
+    try {
+      if (navigator.serviceWorker) {
+        /* getRegistration() resolves to null when no SW is registered, so it
+           settles immediately — unlike .ready, which hangs forever. */
+        navigator.serviceWorker.getRegistration()
+          .then(function (reg) {
+            if (reg) reg.showNotification(title, opts);
+            else new Notification(title, opts);
+          })
+          .catch(function () { try { new Notification(title, opts); } catch (e) { console.warn(e); } });
+      } else {
+        new Notification(title, opts);
+      }
+    } catch (err) {
+      try { new Notification(title, opts); } catch (e) { console.warn(e); }
+    }
+  }
+
+  /** Short beep via WebAudio — no external asset needed. */
+  function beep() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1180, ctx.currentTime + 0.14);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.42);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.45);
+      setTimeout(function () { ctx.close(); }, 900);
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ============================================================
+     REALTIME
+     ============================================================ */
+  function setRtStatus(on) {
+    const pill = $('#rtStatus');
+    if (!pill) return;
+    pill.className = 'status-pill ' + (on ? 'on' : 'off');
+    pill.textContent = on ? '✅ সংযুক্ত' : '❌ বিচ্ছিন্ন';
+  }
+
+  let refreshTimer = null;
+  function scheduleRefresh() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(async function () {
+      await refreshCounts();
+      await loadOrders(true);
+      if (state.tab === 'dashboard') renderDashboard();
+    }, 400);
+  }
+
+  function setupRealtime() {
+    teardownRealtime();
+    state.channel = supabase.channel('orders-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, function (payload) {
+        const o = payload.new;
+        showNotification('🛒 নতুন অর্ডার!',
+          '#' + o.order_number + ' — ' + o.customer_name + ' — ৳' + Math.round(Number(o.total) || 0));
+        beep();
+        toast('🛒 নতুন অর্ডার #' + bn(o.order_number) + ' — ' + o.customer_name, 'ok');
+        scheduleRefresh();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, scheduleRefresh)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'orders' }, scheduleRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, function () {
+        clearTimeout(productTimer);
+        productTimer = setTimeout(loadProducts, 500);
+      })
+      .subscribe(function (status) {
+        setRtStatus(status === 'SUBSCRIBED');
+      });
+  }
+  let productTimer = null;
+
+  /* Refresh relative times on the dashboard every minute */
+  setInterval(function () {
+    if (state.user && state.tab === 'dashboard') renderDashboard();
+  }, 60000);
+
+  /* Refresh data when the app returns to the foreground (APK behaviour) */
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && state.user && state.booted) {
+      refreshCounts();
+      if (state.tab === 'dashboard') renderDashboard();
+    }
+  });
+
+  /* ---------------- Go ---------------- */
+  boot();
+})();
+</script>
+</body>
+</html>
