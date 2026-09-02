@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥭</text></svg>">
 
 <style>
@@ -600,6 +600,436 @@ main{
 }
 #bootLoader .mango{font-size:52px;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.75}}
+.prod-weight{font-size:12px;color:var(--secondary);font-weight:700;margin-top:2px}
+
+/* Android APK emoji fix — use text fallback for emoji in critical UI */
+.stat .ic,
+#bottomTabs button .ic,
+.page-title .emoji-icon,
+.card-title .emoji-icon,
+.set-sec .emoji-icon {
+  font-family: 'Noto Color Emoji', 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;
+  font-size: inherit;
+}
+
+/* Mobile APK — Bottom tab bar improvements */
+@media (max-width: 899px) {
+  :root {
+    --tab-h: 68px;  /* was 60px — taller for better touch */
+  }
+
+  #bottomTabs {
+    height: var(--tab-h);
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
+  }
+
+  #bottomTabs button {
+    gap: 4px;
+    padding: 6px 4px;
+    font-size: 12px;
+    min-height: 60px;
+  }
+
+  #bottomTabs button .ic {
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+  }
+
+  #bottomTabs button .ic svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+
+  #bottomTabs button.active .ic svg {
+    stroke: var(--primary);
+  }
+
+  #bottomTabs button .ic svg {
+    stroke: var(--text-gray);
+  }
+
+  /* Active indicator line thicker */
+  #bottomTabs button.active::before {
+    height: 3px;
+    left: 18%;
+    right: 18%;
+  }
+
+  /* Tab badge position fix */
+  .tab-badge {
+    top: 3px;
+    right: calc(50% - 24px);
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+}
+
+/* Mobile stat cards — better spacing and font sizes */
+@media (max-width: 480px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat {
+    padding: 12px 10px 12px 10px;
+    border-left-width: 3px;
+  }
+
+  .stat .val {
+    font-size: 22px;
+  }
+
+  .stat .lbl {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .stat .ic {
+    font-size: 16px;
+    /* Hide emoji icon on very small screens to save space */
+    /* Keep it if SVG is used */
+  }
+}
+
+@media (max-width: 360px) {
+  .stat .val {
+    font-size: 19px;
+  }
+  .stat .lbl {
+    font-size: 10.5px;
+  }
+}
+
+/* Emoji font fallback for Android WebView */
+.page-title,
+.card-title,
+.set-sec,
+.brand .mango,
+.login-logo,
+#bootLoader .mango,
+.empty .ic,
+.confirm-icon {
+  font-family: 'Noto Color Emoji', 'Twemoji Mozilla', 'Apple Color Emoji',
+               'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Emoji',
+               'EmojiOne Color', 'Android Emoji', sans-serif;
+}
+
+/* Date input mobile fix */
+@media (max-width: 899px) {
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 13px 16px;
+    font-size: 16px; /* prevents iOS zoom */
+    min-height: 52px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") no-repeat right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+}
+
+/* Order card mobile improvements */
+@media (max-width: 640px) {
+  .order-top {
+    padding: 14px 12px;
+  }
+
+  .order-line1 {
+    gap: 6px;
+  }
+
+  .order-no {
+    font-size: 14px;
+  }
+
+  .order-name {
+    font-size: 14.5px;
+  }
+
+  .order-total {
+    font-size: 15px;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .order-meta {
+    font-size: 12px;
+    gap: 4px 10px;
+  }
+
+  .order-actions {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .order-actions select {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 14px;
+    min-height: 44px;
+    border-radius: 8px;
+  }
+
+  .order-actions .btn {
+    padding: 10px 12px;
+    font-size: 13.5px;
+    min-height: 44px;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  /* Detail expand area */
+  .order-detail {
+    padding: 12px;
+  }
+
+  .kv {
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .item-row {
+    padding: 10px;
+    font-size: 13.5px;
+  }
+
+  .totals .row {
+    font-size: 13.5px;
+  }
+
+  .totals .row.grand {
+    font-size: 16px;
+  }
+}
+
+/* Product cards mobile */
+@media (max-width: 480px) {
+  .prod-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .prod-body {
+    padding: 9px;
+  }
+
+  .prod-name {
+    font-size: 13px;
+  }
+
+  .prod-cat {
+    font-size: 11.5px;
+  }
+
+  .prod-price .now {
+    font-size: 14px;
+  }
+
+  .prod-price .old {
+    font-size: 12px;
+  }
+
+  .prod-foot {
+    padding: 0 9px 9px;
+  }
+
+  .prod-btns .btn {
+    padding: 9px 4px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .toggle .tl {
+    font-size: 11.5px;
+  }
+}
+
+/* Settings page mobile */
+@media (max-width: 640px) {
+  .setting-card {
+    max-width: 100%;
+  }
+
+  .btn-row {
+    flex-direction: column;
+  }
+
+  .btn-row .btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .readonly-box {
+    font-size: 13.5px;
+    word-break: break-all;
+  }
+
+  .status-pill {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  /* Make FCM / Realtime status visible */
+  .kv {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .set-sec {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+}
+
+/* Global mobile touch target fixes */
+@media (max-width: 899px) {
+  .btn {
+    min-height: 44px;
+  }
+
+  .btn-sm {
+    min-height: 38px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px; /* prevents iOS/Android zoom on focus */
+    min-height: 48px;
+  }
+
+  .field textarea {
+    min-height: 80px;
+  }
+
+  .filter-tabs button {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+
+  /* Modal improvements */
+  .modal-head h3 {
+    font-size: 16px;
+  }
+
+  .modal-body {
+    padding: 14px;
+  }
+
+  .modal-foot {
+    padding: 12px 14px 16px;
+    gap: 8px;
+  }
+
+  .modal-foot .btn {
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  /* Page head on mobile */
+  .page-head {
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  /* Preset buttons (bulk delete) */
+  .preset-btn {
+    padding: 9px 14px;
+    font-size: 13.5px;
+    min-height: 40px;
+  }
+
+  /* Bulk count info box */
+  .bulk-count {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  /* Card padding mobile */
+  .card {
+    padding: 14px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+}
+
+/* Top navbar mobile */
+@media (max-width: 899px) {
+  .brand {
+    font-size: 15px;
+    gap: 5px;
+  }
+
+  .brand .adm {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  #topNav .inner {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .bell {
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
+  }
+
+  .logout-btn {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Login screen mobile */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px 18px;
+    border-radius: 14px;
+  }
+
+  .login-logo {
+    font-size: 36px;
+  }
+
+  .login-card h1 {
+    font-size: 22px;
+  }
+
+  .login-card .field input {
+    font-size: 16px;
+    min-height: 48px;
+  }
+
+  .login-card .btn {
+    min-height: 50px;
+    font-size: 16px;
+    margin-top: 12px;
+  }
+}
 </style>
 </head>
 <body>
@@ -678,7 +1108,7 @@ main{
       <div class="container">
         <div class="page-head">
           <div>
-            <div class="page-title">📊 ড্যাশবোর্ড</div>
+            <div class="page-title">ড্যাশবোর্ড</div>
             <div class="page-sub" id="dashGreeting">আজকের হিসাব এক নজরে</div>
           </div>
         </div>
@@ -687,7 +1117,7 @@ main{
 
         <!-- Storage widget -->
         <div class="card" style="margin-top:16px">
-          <div class="card-title">📊 Supabase স্টোরেজ ব্যবহার</div>
+          <div class="card-title">Supabase স্টোরেজ ব্যবহার</div>
           <div class="bar-track"><div class="bar-fill" id="storageBar"></div></div>
           <div class="storage-meta">
             <span id="storageText">হিসাব করা হচ্ছে...</span>
@@ -701,7 +1131,7 @@ main{
 
         <!-- Recent orders -->
         <div class="card">
-          <div class="card-title">🕒 সাম্প্রতিক অর্ডার</div>
+          <div class="card-title">সাম্প্রতিক অর্ডার</div>
           <div class="table-scroll">
             <table class="mini-table">
               <thead>
@@ -722,7 +1152,7 @@ main{
       <div class="container">
         <div class="page-head">
           <div>
-            <div class="page-title">📦 অর্ডার</div>
+            <div class="page-title">অর্ডার</div>
             <div class="page-sub">নতুন অর্ডার সবার উপরে</div>
           </div>
         </div>
@@ -739,7 +1169,7 @@ main{
 
         <!-- Bulk delete -->
         <div class="card bulk-box" id="bulkBox">
-          <div class="card-title">📦 পুরনো অর্ডার ডিলিট করুন</div>
+          <div class="card-title">পুরনো অর্ডার ডিলিট করুন</div>
           <div class="bulk-presets">
             <span class="lbl">দ্রুত নির্বাচন:</span>
             <button type="button" class="preset-btn" data-days="2">শেষ ২ দিন</button>
@@ -774,7 +1204,7 @@ main{
       <div class="container">
         <div class="page-head">
           <div>
-            <div class="page-title">🏷 পণ্য</div>
+            <div class="page-title">পণ্য</div>
             <div class="page-sub" id="prodCountText">—</div>
           </div>
           <button class="btn btn-primary" id="addProductBtn">➕ নতুন পণ্য যোগ করুন</button>
@@ -799,14 +1229,14 @@ main{
       <div class="container">
         <div class="page-head">
           <div>
-            <div class="page-title">⚙️ সেটিংস</div>
+            <div class="page-title">সেটিংস</div>
             <div class="page-sub">ডেলিভারি চার্জ, অ্যাকাউন্ট ও নোটিফিকেশন</div>
           </div>
         </div>
 
         <!-- Delivery charges -->
         <div class="card setting-card">
-          <div class="set-sec">🚚 ডেলিভারি চার্জ</div>
+          <div class="set-sec">▶ ডেলিভারি চার্জ</div>
           <div class="field-row">
             <div class="field">
               <label for="setInside">খুলনার ভিতরে (৳)</label>
@@ -822,7 +1252,7 @@ main{
 
         <!-- Admin account -->
         <div class="card setting-card">
-          <div class="set-sec">👤 অ্যাডমিন অ্যাকাউন্ট</div>
+          <div class="set-sec">▶ অ্যাডমিন অ্যাকাউন্ট</div>
           <div class="field">
             <span class="lbl">ইমেইল</span>
             <div class="readonly-box" id="adminEmail">—</div>
@@ -847,7 +1277,7 @@ main{
 
         <!-- Notifications -->
         <div class="card setting-card">
-          <div class="set-sec">🔔 নোটিফিকেশন</div>
+          <div class="set-sec">▶ নোটিফিকেশন</div>
           <div class="kv" style="margin-bottom:12px">
             <span class="k">FCM স্ট্যাটাস:</span>
             <span class="status-pill off" id="fcmStatus">❌ নিষ্ক্রিয়</span>
@@ -861,7 +1291,7 @@ main{
 
         <!-- Realtime status -->
         <div class="card setting-card">
-          <div class="set-sec">📡 রিয়েলটাইম সংযোগ</div>
+          <div class="set-sec">▶ রিয়েলটাইম সংযোগ</div>
           <div class="kv">
             <span class="k">অর্ডার লাইভ আপডেট:</span>
             <span class="status-pill off" id="rtStatus">⏳ সংযোগ হচ্ছে...</span>
@@ -876,10 +1306,43 @@ main{
 
   <!-- Bottom tab bar (mobile / APK) -->
   <nav id="bottomTabs">
-    <button data-tab="dashboard" class="active"><span class="ic">📊</span><span>ড্যাশবোর্ড</span></button>
-    <button data-tab="orders"><span class="ic">📦</span><span>অর্ডার</span><span class="tab-badge zero" id="tabBadge">0</span></button>
-    <button data-tab="products"><span class="ic">🏷</span><span>পণ্য</span></button>
-    <button data-tab="settings"><span class="ic">⚙️</span><span>সেটিংস</span></button>
+    <button data-tab="dashboard" class="active">
+      <span class="ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </span>
+      <span>ড্যাশবোর্ড</span>
+    </button>
+    <button data-tab="orders">
+      <span class="ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </span>
+      <span>অর্ডার</span>
+      <span class="tab-badge zero" id="tabBadge">0</span>
+    </button>
+    <button data-tab="products">
+      <span class="ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+      </span>
+      <span>পণ্য</span>
+    </button>
+    <button data-tab="settings">
+      <span class="ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </span>
+      <span>সেটিংস</span>
+    </button>
   </nav>
 </div>
 
@@ -932,6 +1395,12 @@ main{
             <div class="hint">খালি রাখলে কোনো ডিসকাউন্ট দেখাবে না</div>
             <div class="err-msg" id="errDiscount"></div>
           </div>
+        </div>
+
+        <div class="field">
+          <label for="pWeight">পরিমাণ (ওজন/সাইজ)</label>
+          <input type="text" id="pWeight" placeholder="যেমন: ৫০০ গ্রাম, ২৫০ মিলি, ১ কেজি">
+          <div class="hint">ঐচ্ছিক — খালি রাখলে কোথাও দেখাবে না</div>
         </div>
 
         <div class="field">
@@ -2206,6 +2675,7 @@ main{
         '<div class="prod-body">' +
           '<div class="prod-name">' + esc(p.name_bn) + '</div>' +
           '<div class="prod-cat">ক্যাটাগরি: ' + esc(p.category_bn || '—') + '</div>' +
+          (p.weight_label ? '<div class="prod-weight">⚖️ ' + esc(p.weight_label) + '</div>' : '') +
           '<div class="prod-price">' + price + '</div>' +
         '</div>' +
         '<div class="prod-foot">' +
@@ -2358,6 +2828,7 @@ main{
     $('#pDescBn').value = p ? (p.description_bn || '') : '';
     $('#pDescEn').value = p ? (p.description_en || '') : '';
     $('#pSort').value = p ? (p.sort_order != null ? p.sort_order : 0) : (state.products.length);
+    $('#pWeight').value = p ? (p.weight_label || '') : '';
     // Hide the ordering field entirely when the column is not in the table.
     const sortField = $('#pSort').closest('.field');
     if (sortField) sortField.style.display = state.hasSortOrder ? '' : 'none';
@@ -2486,7 +2957,8 @@ main{
       discount_price: discRaw === '' ? null : Number(discRaw),
       description_bn: $('#pDescBn').value.trim() || null,
       description_en: $('#pDescEn').value.trim() || null,
-      is_available: $('#pAvailable').checked
+      is_available: $('#pAvailable').checked,
+      weight_label: $('#pWeight').value.trim() || null
     };
 
     // sort_order only goes in when the column exists and the field was filled;
