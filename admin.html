@@ -1262,18 +1262,30 @@ body.banner-active main {
         <div class="card setting-card">
           <div class="set-sec">নোটিফিকেশন</div>
           <div class="kv" style="margin-bottom:12px">
-            <span class="k">Realtime স্ট্যাটাস:</span>
+            <span class="k">FCM স্ট্যাটাস:</span>
             <span class="status-pill off" id="fcmStatus">নিষ্ক্রিয়</span>
           </div>
-          <div class="page-sub" id="fcmNote">নতুন অর্ডার এলে শব্দ ও ব্যানার দেখাবে। Realtime সংযোগ চালু থাকলে কাজ করবে।</div>
+          <div class="page-sub" id="fcmNote">
+            Background notification চালু করতে নিচের বাটনে চাপুন।
+          </div>
           <div class="btn-row">
-            <button class="btn btn-primary hidden" id="permBtn">নোটিফিকেশন পারমিশন দিন</button>
+            <button class="btn btn-primary" id="permBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:6px;vertical-align:middle">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              Background Notification চালু করুন
+            </button>
             <button class="btn btn-outline" id="testNotifBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:6px;vertical-align:middle"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:6px;vertical-align:middle">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
               টেস্ট অ্যালার্ট
             </button>
           </div>
         </div>
+
 
         <!-- Realtime status -->
         <div class="card setting-card">
@@ -1712,6 +1724,28 @@ body.banner-active main {
     setTimeout(() => $('#loginEmail').focus(), 120);
   }
 
+  // Load existing FCM token from Supabase if not in localStorage
+  async function loadFcmTokenFromSupabase() {
+    try {
+      const stored = localStorage.getItem('fcm_token');
+      if (stored) { state.fcmToken = stored; refreshFcmUi(); return; }
+
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'fcm_token')
+        .single();
+
+      if (!error && data && data.value && data.value.length > 10) {
+        state.fcmToken = data.value;
+        localStorage.setItem('fcm_token', data.value);
+      }
+      refreshFcmUi();
+    } catch(err) {
+      console.warn('FCM token load failed:', err);
+    }
+  }
+
   async function enterApp() {
     if (state.entering) return;
     state.entering = true;
@@ -1723,6 +1757,7 @@ body.banner-active main {
 
     setupRealtime();
     initFirebase();
+    await loadFcmTokenFromSupabase();
     refreshFcmUi();
 
     renderStats();
@@ -3167,56 +3202,180 @@ body.banner-active main {
      FIREBASE / NOTIFICATIONS (WebView / APK compatible)
      ============================================================ */
   function initFirebase() {
-    // AppsGeyser WebView does not support FCM push notifications.
-    // We use Supabase Realtime (already set up) + in-app alerts instead.
-    // The beep() function handles audio alert on new orders.
-    console.log('Running in WebView mode — using Supabase Realtime for order alerts');
+    // Firebase initialized lazily in requestPermissionAndToken()
+    // to avoid errors in WebViews that don't support it
+    console.log('Firebase ready — will init on permission grant');
+
+    // Try to listen for foreground messages if Firebase is available
+    try {
+      if (window.firebase && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()) {
+        if (!firebase.apps || !firebase.apps.length) {
+          firebase.initializeApp({
+            apiKey: 'AIzaSyCYv4oW83jo9ZVcJbyXjasnqdA9h3pttyw',
+            authDomain: 'achar-wala.firebaseapp.com',
+            projectId: 'achar-wala',
+            storageBucket: 'achar-wala.firebasestorage.app',
+            messagingSenderId: '83891655859',
+            appId: '1:83891655859:web:024651eb1f328afe714cc6'
+          });
+        }
+        const msg = firebase.messaging();
+        msg.onMessage(function (payload) {
+          // Foreground: app খোলা থাকলে banner দেখান
+          const n = payload.notification || {};
+          const banner = document.getElementById('newOrderBanner');
+          const bannerText = document.getElementById('newOrderBannerText');
+          if (banner && bannerText) {
+            bannerText.textContent = (n.title || '') + ' — ' + (n.body || '');
+            banner.style.display = 'block';
+            document.body.classList.add('banner-active');
+            setTimeout(function () {
+              banner.style.display = 'none';
+              document.body.classList.remove('banner-active');
+            }, 8000);
+          }
+          beep();
+          toast((n.title || 'নতুন অর্ডার') + ' — ' + (n.body || ''), 'ok');
+        });
+      }
+    } catch (err) {
+      console.warn('Firebase messaging not available:', err);
+    }
+
+    registerServiceWorker();
     refreshFcmUi();
+  }
+
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('firebase-messaging-sw.js').catch(function (err) {
+        console.warn('Service worker registration failed:', err);
+      });
+    }
   }
 
   function refreshFcmUi() {
     const pill = $('#fcmStatus');
     const permBtn = $('#permBtn');
     const note = $('#fcmNote');
+    if (!pill || !permBtn || !note) return;
 
-    // In WebView/APK, Supabase Realtime IS the notification system
-    const rtConnected = state.channel !== null;
+    const hasToken = !!(state.fcmToken || localStorage.getItem('fcm_token'));
+    const rtOk = state.channel !== null;
 
-    if (rtConnected) {
+    if (hasToken && rtOk) {
+      pill.className = 'status-pill on';
+      pill.textContent = 'সম্পূর্ণ সক্রিয়';
+      permBtn.classList.add('hidden');
+      note.textContent = 'App বন্ধ থাকলেও notification আসবে। Realtime সংযোগও চালু আছে।';
+    } else if (hasToken) {
+      pill.className = 'status-pill on';
+      pill.textContent = 'FCM সক্রিয়';
+      permBtn.classList.add('hidden');
+      note.textContent = 'App বন্ধ থাকলেও notification আসবে (FCM চালু)।';
+    } else if (rtOk) {
       pill.className = 'status-pill on';
       pill.textContent = 'Realtime সক্রিয়';
-      permBtn.classList.add('hidden');
-      note.textContent = 'নতুন অর্ডার এলে সাথে সাথে শব্দ ও ব্যানার দেখাবে। রিয়েলটাইম সংযোগ চালু আছে।';
+      permBtn.classList.remove('hidden');
+      note.textContent = 'App খোলা থাকলে notification আসবে। Background notification-এর জন্য "পারমিশন দিন" চাপুন।';
     } else {
       pill.className = 'status-pill off';
-      pill.textContent = 'সংযোগ হচ্ছে...';
+      pill.textContent = 'নিষ্ক্রিয়';
       permBtn.classList.remove('hidden');
-      note.textContent = 'নতুন অর্ডার আলার্টের জন্য ইন্টারনেট সংযোগ প্রয়োজন।';
-    }
-
-    // Check if native Notification is available (browser, not WebView)
-    if ('Notification' in window && Notification.permission === 'granted') {
-      pill.className = 'status-pill on';
-      pill.textContent = 'Realtime + নোটিফিকেশন সক্রিয়';
-      permBtn.classList.add('hidden');
+      note.textContent = 'Background notification চালু করতে "পারমিশন দিন" বাটনে চাপুন।';
     }
   }
 
   async function requestPermissionAndToken() {
-    // Try native notification if available (browser), otherwise use in-app
-    if ('Notification' in window && Notification.permission !== 'denied') {
-      try {
-        const perm = await Notification.requestPermission();
-        if (perm === 'granted') {
-          toast('নোটিফিকেশন চালু হয়েছে', 'ok');
-          refreshFcmUi();
-          return;
-        }
-      } catch (e) { /* WebView blocks this — fall through */ }
+    // Step 1: Try to get notification permission
+    if (!('Notification' in window)) {
+      // WebView — still try to get FCM token via SW
+      await tryGetFcmTokenViaSW();
+      return;
     }
-    // In-app fallback: realtime already handles new order alerts
-    toast('এই অ্যাপে Realtime অর্ডার আলার্ট চালু আছে — নতুন অর্ডারে শব্দ ও ব্যানার দেখাবে', 'ok');
-    refreshFcmUi();
+
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        toast('নোটিফিকেশন পারমিশন দেওয়া হয়নি', 'err');
+        refreshFcmUi();
+        return;
+      }
+    } catch (e) {
+      console.warn('Permission request failed (WebView):', e);
+    }
+
+    await tryGetFcmTokenViaSW();
+  }
+
+  async function tryGetFcmTokenViaSW() {
+    try {
+      // Register service worker
+      let swReg = null;
+      if ('serviceWorker' in navigator) {
+        swReg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+        await navigator.serviceWorker.ready;
+      }
+
+      // Initialize Firebase messaging
+      if (!window.firebase || !firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp({
+          apiKey: 'AIzaSyCYv4oW83jo9ZVcJbyXjasnqdA9h3pttyw',
+          authDomain: 'achar-wala.firebaseapp.com',
+          projectId: 'achar-wala',
+          storageBucket: 'achar-wala.firebasestorage.app',
+          messagingSenderId: '83891655859',
+          appId: '1:83891655859:web:024651eb1f328afe714cc6'
+        });
+      }
+
+      if (!firebase.messaging || !firebase.messaging.isSupported || !firebase.messaging.isSupported()) {
+        toast('Firebase Messaging এই ব্রাউজারে সাপোর্ট করে না — Realtime alert চালু আছে ✅', 'ok');
+        refreshFcmUi();
+        return;
+      }
+
+      const msg = firebase.messaging();
+      const opts = {
+        vapidKey: 'BGVjvfAFpO176jBM3GWNUISbfRrXzT_M9lAEvTJyH9RHpJPx3f7Zxb9MUz-B_impVuI730ah5P52Pyu6rQHuhis'
+      };
+      if (swReg) opts.serviceWorkerRegistration = swReg;
+
+      const token = await msg.getToken(opts);
+
+      if (!token) {
+        toast('FCM token পাওয়া যায়নি', 'err');
+        return;
+      }
+
+      // Save token to state and localStorage
+      state.fcmToken = token;
+      localStorage.setItem('fcm_token', token);
+
+      // Save token to Supabase settings table
+      await saveFcmTokenToSupabase(token);
+
+      toast('নোটিফিকেশন সেটআপ সফল! ✅ এখন app বন্ধ থাকলেও notification আসবে', 'ok');
+      refreshFcmUi();
+
+    } catch (err) {
+      console.error('FCM token error:', err);
+      toast('FCM setup ব্যর্থ — Realtime alert চালু আছে ✅', 'ok');
+      refreshFcmUi();
+    }
+  }
+
+  async function saveFcmTokenToSupabase(token) {
+    try {
+      if (!(await requireSession())) return;
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key: 'fcm_token', value: token });
+      if (error) throw error;
+      console.log('FCM token saved to Supabase ✅');
+    } catch (err) {
+      console.error('FCM token save failed:', err);
+    }
   }
   $('#permBtn').addEventListener('click', requestPermissionAndToken);
 
